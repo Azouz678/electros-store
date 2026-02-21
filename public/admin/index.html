@@ -1,10 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <title>Electros Admin</title>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-</head>
-<body>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Electros Admin</title>
+  </head>
+  <body>
+    <div style="font-family: system-ui; padding: 16px">Loading Admin...</div>
+
+    <script>
+      window.addEventListener("error", (e) => {
+        document.body.innerHTML =
+          "<pre style='white-space:pre-wrap;padding:16px;color:#b91c1c'>Admin Error:\\n" +
+          (e.message || e.error || e) +
+          "</pre>";
+      });
+    </script>
+
+    <!-- decap-cms bundle from CDN -->
+    <script src="https://unpkg.com/decap-cms@3.4.0/dist/decap-cms.js"></script>
+  </body>
 </html>

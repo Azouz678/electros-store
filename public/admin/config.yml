@@ -8,21 +8,21 @@ public_folder: "/uploads"
 
 collections:
   - name: "categories"
-    label: "الفئات"
+    label: "Categories"
     folder: "content/categories"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "اسم الفئة", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string" }
 
   - name: "products"
-    label: "المنتجات"
+    label: "Products"
     folder: "content/products"
     create: true
     slug: "{{slug}}"
     fields:
-      - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "السعر", name: "price", widget: "string" }
-      - { label: "الصورة", name: "image", widget: "image" }
-      - { label: "الفئة", name: "category", widget: "string" }
-      - { label: "الوصف", name: "body", widget: "markdown" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Price", name: "price", widget: "string" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Category slug", name: "category", widget: "string" }
+      - { label: "Description", name: "body", widget: "markdown" }
