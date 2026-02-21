@@ -10,6 +10,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleLogin() {
@@ -45,13 +46,25 @@ export default function LoginPage() {
           className="w-full mb-4 border p-3 rounded-xl"
         />
 
-        <input
-          type="password"
-          placeholder="كلمة المرور"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full mb-6 border p-3 rounded-xl"
-        />
+<div className="relative mb-6">
+
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="كلمة المرور"
+    value={password}
+    onChange={e => setPassword(e.target.value)}
+    className="w-full border p-3 rounded-xl pr-12"
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+  >
+    {showPassword ? "🙈" : "👁️"}
+  </button>
+
+</div>
 
         <button
           onClick={handleLogin}

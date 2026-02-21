@@ -130,9 +130,21 @@ export default function Dashboard() {
 
       <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl space-y-10">
 
-        <h1 className="text-2xl font-bold text-center">
-          لوحة التحكم
-        </h1>
+    <div className="flex justify-between items-center">
+  <h1 className="text-2xl font-bold">
+    لوحة التحكم
+  </h1>
+
+  <button
+    onClick={async () => {
+      await supabase.auth.signOut()
+      router.push("/login")
+    }}
+    className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition"
+  >
+    تسجيل خروج
+  </button>
+</div>
 
         {/* ===== إضافة فئة ===== */}
 
