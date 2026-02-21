@@ -67,9 +67,9 @@ export default async function Home() {
       شاهد المنتجات داخل هذا القسم
     </p> */}
 
-    <div className="mt-4 text-sm font-semibold text-indigo-600 opacity-0 transition group-hover:opacity-100">
+    {/* <div className="mt-4 text-sm font-semibold text-indigo-600 opacity-0 transition group-hover:opacity-100">
       عرض المنتجات →
-    </div>
+    </div> */}
   </Link>
 ))}
 
