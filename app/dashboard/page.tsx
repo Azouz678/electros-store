@@ -1,7 +1,10 @@
 "use client"
 
+
 import { supabase } from "@/lib/supabase"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+
 
 type Category = {
   id: string
@@ -9,6 +12,9 @@ type Category = {
 }
 
 export default function Dashboard() {
+
+  const router = useRouter()
+
 
   const [categories, setCategories] = useState<Category[]>([])
   const [categoryName, setCategoryName] = useState("")
@@ -20,6 +26,20 @@ export default function Dashboard() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // 🔐 حماية الصفحة
+  useEffect(() => {
+    async function checkUser() {
+      const { data } = await supabase.auth.getUser()
+
+      if (!data.user) {
+        router.push("/login")
+      }
+    }
+
+    checkUser()
+  }, [])
+
 
   useEffect(() => {
     fetchCategories()
