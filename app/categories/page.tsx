@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import { SiteShell } from "@/components/site-shell"
 import { createClient } from "@supabase/supabase-js"
 import Link from "next/link"
