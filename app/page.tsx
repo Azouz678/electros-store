@@ -2,6 +2,8 @@ import { SiteShell } from "@/components/site-shell"
 import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
 
+export const revalidate = 0
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -61,9 +63,9 @@ export default async function Home() {
       {category.name}
     </h3>
 
-    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+    {/* <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
       شاهد المنتجات داخل هذا القسم
-    </p>
+    </p> */}
 
     <div className="mt-4 text-sm font-semibold text-indigo-600 opacity-0 transition group-hover:opacity-100">
       عرض المنتجات →
