@@ -12,9 +12,11 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   async function handleLogin() {
     setLoading(true)
+    setErrorMessage("")
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -23,52 +25,62 @@ export default function LoginPage() {
 
     setLoading(false)
 
-    if (!error) {
-      router.push("/dashboard")
+    if (error) {
+      setErrorMessage("البريد أو كلمة المرور غير صحيحة")
     } else {
-      alert("بيانات الدخول غير صحيحة")
+      router.push("/dashboard")
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6">
 
-      <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl w-full max-w-md">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl p-8 space-y-6">
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
+        <h1 className="text-2xl font-bold text-center">
           تسجيل الدخول
         </h1>
 
+        {errorMessage && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-xl text-sm">
+            {errorMessage}
+          </div>
+        )}
+
         <input
+          type="email"
           placeholder="البريد الإلكتروني"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="w-full mb-4 border p-3 rounded-xl"
+          className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
-<div className="relative mb-6">
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="كلمة المرور"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-12"
+          />
 
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="كلمة المرور"
-    value={password}
-    onChange={e => setPassword(e.target.value)}
-    className="w-full border p-3 rounded-xl pr-12"
-  />
-
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-  >
-    {showPassword ? "🙈" : "👁️"}
-  </button>
-
-</div>
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
+        </div>
 
         <button
           onClick={handleLogin}
-          className="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition"
+          disabled={loading}
+          className={`w-full py-3 rounded-xl text-white transition ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
         >
           {loading ? "جارٍ الدخول..." : "دخول"}
         </button>
