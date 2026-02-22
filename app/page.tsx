@@ -55,21 +55,25 @@ export default async function Home() {
   <Link
     key={category.id}
     href={`/categories/${category.id}`}
-    className="group rounded-3xl border bg-white p-8 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-900"
+    className="group rounded-3xl border bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-900"
   >
-    <div className="text-4xl">🛒</div>
+
+    {category.image ? (
+      <img
+        src={category.image}
+        alt={category.name}
+        className="h-40 w-full rounded-2xl object-cover"
+      />
+    ) : (
+      <div className="flex h-40 items-center justify-center text-4xl">
+        🛒
+      </div>
+    )}
 
     <h3 className="mt-4 text-xl font-semibold">
       {category.name}
     </h3>
 
-    {/* <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-      شاهد المنتجات داخل هذا القسم
-    </p> */}
-
-    {/* <div className="mt-4 text-sm font-semibold text-indigo-600 opacity-0 transition group-hover:opacity-100">
-      عرض المنتجات →
-    </div> */}
   </Link>
 ))}
 
