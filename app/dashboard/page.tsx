@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { ImagePlus, CheckCircle } from "lucide-react"
 
 type Category = {
   id: string
@@ -24,14 +25,27 @@ export default function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([])
   const [categoryName, setCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
+  const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
 
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
   const [description, setDescription] = useState("")
   const [categoryId, setCategoryId] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [productPreview, setProductPreview] = useState<string | null>(null)
+
   const [loading, setLoading] = useState(false)
+
+  // ✅ (تعديل 1) أضفنا state لرسالة النجاح
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  // ✅ (تعديل 2) دالة عرض الرسالة وتختفي تلقائياً
+  function showSuccess(message: string) {
+    setSuccessMessage(message)
+    setTimeout(() => {
+      setSuccessMessage(null)
+    }, 3000)
+  }
 
   useEffect(() => {
     async function checkUser() {
@@ -64,7 +78,6 @@ export default function Dashboard() {
 
     const slug = generateSlug(categoryName)
 
-    // منع التكرار
     const { data: existing } = await supabase
       .from("categories")
       .select("id")
@@ -76,7 +89,7 @@ export default function Dashboard() {
     let imageUrl = null
 
     if (categoryImage) {
-      const fileName = `cat-${Date.now()}-${categoryImage.name}`
+      const fileName = `cat-${Date.now()}.jpg`
 
       const { error: uploadError } = await supabase.storage
         .from("categories")
@@ -102,7 +115,12 @@ export default function Dashboard() {
 
     setCategoryName("")
     setCategoryImage(null)
+    setCategoryPreview(null)
+
     fetchCategories()
+
+    // ✅ (تعديل 3) رسالة نجاح إضافة الفئة
+    showSuccess("تم إضافة الفئة بنجاح ✅")
   }
 
   // ===============================
@@ -129,7 +147,7 @@ export default function Dashboard() {
       return alert("منتج بنفس الاسم موجود")
     }
 
-    const fileName = `${Date.now()}-${imageFile.name}`
+    const fileName = `prod-${Date.now()}.jpg`
 
     const { error: uploadError } = await supabase.storage
       .from("products")
@@ -161,12 +179,23 @@ export default function Dashboard() {
     setPrice("")
     setDescription("")
     setCategoryId("")
-    setPreview(null)
+    setProductPreview(null)
     setImageFile(null)
+
+    // ✅ (تعديل 4) رسالة نجاح إضافة المنتج
+    showSuccess("تم إضافة المنتج بنجاح ✅")
   }
 
   return (
     <div className="max-w-3xl">
+
+      {/* ✅ (تعديل 5) واجهة Toast تظهر أعلى الصفحة */}
+      {successMessage && (
+        <div className="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 animate-bounce">
+          <CheckCircle size={18} />
+          {successMessage}
+        </div>
+      )}
 
       <h1 className="text-2xl font-bold mb-8">
         إضافة منتج أو فئة
@@ -184,13 +213,57 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-        <input
-          type="file"
-          onChange={(e) => {
-            if (e.target.files) setCategoryImage(e.target.files[0])
-          }}
-          className="w-full"
-        />
+        <div className="space-y-3">
+
+          <label className="block text-sm font-medium">
+            صورة الفئة
+          </label>
+
+          <div className="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-purple-500 transition group">
+
+            {!categoryPreview ? (
+              <>
+                <div className="flex flex-col items-center gap-2 text-gray-500">
+                  <ImagePlus size={28} />
+                  <p className="text-sm">اضغط لاختيار صورة</p>
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      const file = e.target.files[0]
+                      setCategoryImage(file)
+                      setCategoryPreview(URL.createObjectURL(file))
+                    }
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <img
+                  src={categoryPreview}
+                  className="w-full h-40 object-cover rounded-xl"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoryImage(null)
+                    setCategoryPreview(null)
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow"
+                >
+                  حذف
+                </button>
+              </>
+            )}
+
+          </div>
+
+        </div>
 
         <button
           onClick={addCategory}
@@ -240,23 +313,57 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-        <input
-          type="file"
-          onChange={(e) => {
-            if (e.target.files) {
-              setImageFile(e.target.files[0])
-              setPreview(URL.createObjectURL(e.target.files[0]))
-            }
-          }}
-          className="w-full"
-        />
+        <div className="space-y-3">
 
-        {preview && (
-          <img
-            src={preview}
-            className="w-full h-60 object-cover rounded-xl"
-          />
-        )}
+          <label className="block text-sm font-medium">
+            صورة المنتج
+          </label>
+
+          <div className="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-green-500 transition group">
+
+            {!productPreview ? (
+              <>
+                <div className="flex flex-col items-center gap-2 text-gray-500">
+                  <ImagePlus size={28} />
+                  <p className="text-sm">اضغط لاختيار صورة</p>
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      const file = e.target.files[0]
+                      setImageFile(file)
+                      setProductPreview(URL.createObjectURL(file))
+                    }
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <img
+                  src={productPreview}
+                  className="w-full h-48 object-cover rounded-xl"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null)
+                    setProductPreview(null)
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow"
+                >
+                  حذف
+                </button>
+              </>
+            )}
+
+          </div>
+
+        </div>
 
         <button
           onClick={addProduct}
