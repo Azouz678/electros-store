@@ -14,7 +14,7 @@ export default async function Home() {
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
-
+    .eq("is_active", true)
   return (
     <SiteShell>
 

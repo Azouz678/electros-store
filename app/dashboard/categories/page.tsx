@@ -163,9 +163,9 @@ export default function ManageCategories() {
                   {cat.name}
                 </p>
 
-                <p className="text-xs text-gray-500">
+                {/* <p className="text-xs text-gray-500">
                   slug: {cat.slug}
-                </p>
+                </p> */}
 
                 <p className={`text-xs ${cat.is_active ? "text-green-600" : "text-red-500"}`}>
                   {cat.is_active ? "مفعلة" : "موقوفة"}
