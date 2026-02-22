@@ -2,12 +2,22 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2, ImagePlus, Power } from "lucide-react"
 
 type Category = {
   id: string
   name: string
   slug: string
+  image: string | null
+  is_active: boolean
+}
+
+function generateSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
 }
 
 export default function ManageCategories() {
@@ -15,17 +25,26 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
+  const [newImage, setNewImage] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchCategories()
   }, [])
 
   async function fetchCategories() {
-    const { data } = await supabase.from("categories").select("*")
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
+      .order("created_at", { ascending: false })
+
     setCategories(data || [])
   }
 
-  // 🔥 منع حذف فئة مرتبطة بمنتجات
+  // =============================
+  // حذف
+  // =============================
+
   async function deleteCategory(id: string) {
 
     const { count } = await supabase
@@ -44,41 +63,74 @@ export default function ManageCategories() {
     fetchCategories()
   }
 
-  // 🔥 تعديل مع منع التكرار وتحديث slug
+  // =============================
+  // تفعيل / إيقاف
+  // =============================
+
+  async function toggleActive(cat: Category) {
+    await supabase
+      .from("categories")
+      .update({ is_active: !cat.is_active })
+      .eq("id", cat.id)
+
+    fetchCategories()
+  }
+
+  // =============================
+  // تحديث
+  // =============================
+
   async function updateCategory() {
 
     if (!editing) return
 
     const trimmed = newName.trim()
 
-    if (!trimmed) {
-      alert("اسم الفئة مطلوب")
-      return
-    }
+    if (!trimmed) return alert("اسم الفئة مطلوب")
 
-    // 🔥 منع تكرار الاسم
+    // منع التكرار
     const { data: existing } = await supabase
       .from("categories")
       .select("*")
-      .eq("name", trimmed)
+      .eq("slug", generateSlug(trimmed))
       .neq("id", editing.id)
 
     if (existing && existing.length > 0) {
-      alert("اسم الفئة موجود مسبقاً")
+      alert("فئة بنفس الاسم موجودة")
       return
     }
 
-    const newSlug = trimmed.toLowerCase().replace(/\s+/g, "-")
+    let imageUrl = editing.image
+
+    if (newImage) {
+
+      const fileName = `cat-${Date.now()}-${newImage.name}`
+
+      const { error } = await supabase.storage
+        .from("categories")
+        .upload(fileName, newImage)
+
+      if (error) return alert("فشل رفع الصورة")
+
+      const { data } = supabase.storage
+        .from("categories")
+        .getPublicUrl(fileName)
+
+      imageUrl = data.publicUrl
+    }
 
     await supabase
       .from("categories")
       .update({
         name: trimmed,
-        slug: newSlug
+        slug: generateSlug(trimmed),
+        image: imageUrl
       })
       .eq("id", editing.id)
 
     setEditing(null)
+    setNewImage(null)
+    setPreview(null)
     fetchCategories()
   }
 
@@ -94,28 +146,55 @@ export default function ManageCategories() {
         {categories.map(cat => (
           <div
             key={cat.id}
-            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex justify-between items-center"
+            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex flex-col md:flex-row md:justify-between md:items-center gap-4"
           >
-            <div>
-              <p className="font-semibold text-lg">{cat.name}</p>
-              <p className="text-xs text-gray-500">slug: {cat.slug}</p>
+
+            <div className="flex items-center gap-4">
+
+              {cat.image && (
+                <img
+                  src={cat.image}
+                  className="w-16 h-16 object-cover rounded-xl"
+                />
+              )}
+
+              <div>
+                <p className="font-semibold text-lg">
+                  {cat.name}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  slug: {cat.slug}
+                </p>
+
+                <p className={`text-xs ${cat.is_active ? "text-green-600" : "text-red-500"}`}>
+                  {cat.is_active ? "مفعلة" : "موقوفة"}
+                </p>
+              </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2">
+
+              <button
+                onClick={() => toggleActive(cat)}
+                className="bg-yellow-500 text-white px-3 py-2 rounded-xl"
+              >
+                <Power size={16} />
+              </button>
 
               <button
                 onClick={() => {
                   setEditing(cat)
                   setNewName(cat.name)
                 }}
-                className="bg-blue-500 text-white px-4 py-2 rounded-xl"
+                className="bg-blue-500 text-white px-3 py-2 rounded-xl"
               >
                 <Pencil size={16} />
               </button>
 
               <button
                 onClick={() => deleteCategory(cat.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded-xl"
+                className="bg-red-500 text-white px-3 py-2 rounded-xl"
               >
                 <Trash2 size={16} />
               </button>
@@ -127,7 +206,7 @@ export default function ManageCategories() {
 
       </div>
 
-      {/* ===== Modal التعديل ===== */}
+      {/* ===== Modal ===== */}
 
       {editing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -143,6 +222,28 @@ export default function ManageCategories() {
               onChange={e => setNewName(e.target.value)}
               className="w-full border p-3 rounded-xl"
             />
+
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <ImagePlus size={16} />
+              تغيير الصورة
+              <input
+                type="file"
+                hidden
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setNewImage(e.target.files[0])
+                    setPreview(URL.createObjectURL(e.target.files[0]))
+                  }
+                }}
+              />
+            </label>
+
+            {preview && (
+              <img
+                src={preview}
+                className="w-full h-40 object-cover rounded-xl"
+              />
+            )}
 
             <div className="flex justify-end gap-3">
               <button
