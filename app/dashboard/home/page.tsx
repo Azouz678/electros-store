@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react"
 
 export default function DashboardHome() {
 
@@ -29,7 +29,7 @@ export default function DashboardHome() {
     <div className="space-y-6">
 
       <h1 className="text-3xl font-bold">
-        مرحباً بك 👋
+        مرحباً بك عزوز👋
       </h1>
 
       <div className="grid md:grid-cols-2 gap-6">
