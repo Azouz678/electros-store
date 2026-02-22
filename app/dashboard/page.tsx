@@ -47,14 +47,33 @@ export default function Dashboard() {
     }, 3000)
   }
 
+  // useEffect(() => {
+  //   async function checkUser() {
+  //     const { data } = await supabase.auth.getUser()
+  //     if (!data.user) router.push("/login")
+  //   }
+  //   checkUser()
+  // }, [])
   useEffect(() => {
-    async function checkUser() {
-      const { data } = await supabase.auth.getUser()
-      if (!data.user) router.push("/login")
-    }
-    checkUser()
-  }, [])
+  async function checkAccess() {
 
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData.user) return router.push("/login")
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile) {
+      await supabase.auth.signOut()
+      router.push("/login")
+    }
+  }
+
+  checkAccess()
+}, [])
   useEffect(() => {
     fetchCategories()
   }, [])
