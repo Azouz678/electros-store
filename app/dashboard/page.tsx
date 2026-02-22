@@ -9,21 +9,11 @@ type Category = {
   name: string
 }
 
-type Product = {
-  id: string
-  name: string
-  price: string
-  category_id: string
-  image: string
-}
-
 export default function Dashboard() {
 
   const router = useRouter()
 
   const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-
   const [categoryName, setCategoryName] = useState("")
 
   const [name, setName] = useState("")
@@ -44,31 +34,15 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
-    fetchData()
+    fetchCategories()
   }, [])
 
-  async function fetchData() {
-    const { data: categoriesData } = await supabase.from("categories").select("*")
-    const { data: productsData } = await supabase.from("products").select("*")
+  async function fetchCategories() {
+    const { data } = await supabase
+      .from("categories")
+      .select("*")
 
-    setCategories(categoriesData || [])
-    setProducts(productsData || [])
-  }
-
-  async function deleteProduct(id: string) {
-    const confirmDelete = confirm("هل أنت متأكد من حذف المنتج؟")
-    if (!confirmDelete) return
-
-    await supabase.from("products").delete().eq("id", id)
-    fetchData()
-  }
-
-  async function deleteCategory(id: string) {
-    const confirmDelete = confirm("هل أنت متأكد من حذف الفئة؟")
-    if (!confirmDelete) return
-
-    await supabase.from("categories").delete().eq("id", id)
-    fetchData()
+    setCategories(data || [])
   }
 
   async function addCategory() {
@@ -82,7 +56,7 @@ export default function Dashboard() {
     ])
 
     setCategoryName("")
-    fetchData()
+    fetchCategories()
   }
 
   async function addProduct() {
@@ -119,143 +93,118 @@ export default function Dashboard() {
     ])
 
     setLoading(false)
+
     setName("")
     setPrice("")
     setDescription("")
     setCategoryId("")
     setPreview(null)
     setImageFile(null)
-
-    fetchData()
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-900 p-6">
+return (
+  <div className="max-w-3xl">
 
-      <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl space-y-10">
+    <h1 className="text-2xl font-bold mb-8">
+      إضافة منتج أو فئة
+    </h1>
 
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-          <button
-            onClick={async () => {
-              await supabase.auth.signOut()
-              router.push("/login")
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
-          >
-            تسجيل خروج
-          </button>
-        </div>
+    {/* ===== إضافة فئة ===== */}
 
-        {/* ===== الفئات ===== */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">الفئات الحالية</h2>
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl space-y-4 mb-10">
 
-          <div className="space-y-2 mb-4">
-            {categories.map(cat => (
-              <div key={cat.id} className="flex justify-between bg-gray-100 dark:bg-slate-700 p-3 rounded-xl">
-                <span>{cat.name}</span>
-                <button
-                  onClick={() => deleteCategory(cat.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-lg"
-                >
-                  حذف
-                </button>
-              </div>
-            ))}
-          </div>
+      <h2 className="text-lg font-semibold">إضافة فئة</h2>
 
-          <input
-            value={categoryName}
-            placeholder="اسم الفئة"
-            onChange={e => setCategoryName(e.target.value)}
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-          />
+      <input
+        value={categoryName}
+        placeholder="اسم الفئة"
+        onChange={e => setCategoryName(e.target.value)}
+        className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+      />
 
-          <button
-            onClick={addCategory}
-            className="w-full mt-3 bg-purple-600 text-white py-2 rounded-xl"
-          >
-            إضافة فئة
-          </button>
-        </div>
+      <button
+        onClick={addCategory}
+        className="w-full bg-purple-600 text-white py-2 rounded-xl hover:bg-purple-700 transition"
+      >
+        إضافة الفئة
+      </button>
 
-        <hr />
-
-        {/* ===== إضافة منتج ===== */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">إضافة منتج</h2>
-
-          <input value={name} placeholder="اسم المنتج"
-            onChange={e => setName(e.target.value)}
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700" />
-
-          <input value={price} placeholder="السعر"
-            onChange={e => setPrice(e.target.value)}
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700" />
-
-          <select value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700">
-            <option value="">اختر الفئة</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-
-          <textarea value={description} placeholder="الوصف"
-            onChange={e => setDescription(e.target.value)}
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700" />
-
-          <input type="file"
-            onChange={(e) => {
-              if (e.target.files) {
-                setImageFile(e.target.files[0])
-                setPreview(URL.createObjectURL(e.target.files[0]))
-              }
-            }}
-          />
-
-          {preview && (
-            <img src={preview} className="h-40 rounded-xl" />
-          )}
-
-          <button
-            onClick={addProduct}
-            className="w-full bg-green-600 text-white py-3 rounded-xl"
-          >
-            {loading ? "جارٍ الإضافة..." : "إضافة المنتج"}
-          </button>
-        </div>
-
-        <hr />
-
-        {/* ===== قائمة المنتجات ===== */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">المنتجات الحالية</h2>
-
-          <div className="space-y-3">
-            {products.map(product => (
-              <div key={product.id}
-                className="flex justify-between items-center bg-gray-100 dark:bg-slate-700 p-3 rounded-xl">
-
-                <div>
-                  <p className="font-semibold">{product.name}</p>
-                  <p className="text-sm text-gray-500">{product.price}</p>
-                </div>
-
-                <button
-                  onClick={() => deleteProduct(product.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-lg"
-                >
-                  حذف
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
     </div>
-  )
+
+    {/* ===== إضافة منتج ===== */}
+
+    <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+
+      <h2 className="text-lg font-semibold">إضافة منتج</h2>
+
+      <input
+        value={name}
+        placeholder="اسم المنتج"
+        onChange={e => setName(e.target.value)}
+        className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+      />
+
+      <input
+        value={price}
+        placeholder="السعر"
+        onChange={e => setPrice(e.target.value)}
+        className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+      />
+
+      <select
+        value={categoryId}
+        onChange={e => setCategoryId(e.target.value)}
+        className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+      >
+        <option value="">اختر الفئة</option>
+        {categories.map(cat => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
+      <textarea
+        value={description}
+        placeholder="الوصف"
+        onChange={e => setDescription(e.target.value)}
+        className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+      />
+
+      <label className="w-full block cursor-pointer">
+        <div className="w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-3 rounded-xl transition">
+          اختر صورة المنتج
+        </div>
+
+        <input
+          type="file"
+          hidden
+          onChange={(e) => {
+            const files = e.target.files
+            if (files && files.length > 0) {
+              setImageFile(files[0])
+              setPreview(URL.createObjectURL(files[0]))
+            }
+          }}
+        />
+      </label>
+
+      {preview && (
+        <img
+          src={preview}
+          className="w-full h-60 object-cover rounded-xl"
+        />
+      )}
+
+      <button
+        onClick={addProduct}
+        className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
+      >
+        {loading ? "جارٍ الإضافة..." : "إضافة المنتج"}
+      </button>
+
+    </div>
+
+  </div>
+)
 }
