@@ -7,6 +7,7 @@ import { Pencil, Trash2 } from "lucide-react"
 type Category = {
   id: string
   name: string
+  slug: string
 }
 
 export default function ManageCategories() {
@@ -24,21 +25,58 @@ export default function ManageCategories() {
     setCategories(data || [])
   }
 
+  // 🔥 منع حذف فئة مرتبطة بمنتجات
   async function deleteCategory(id: string) {
+
+    const { count } = await supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("category_id", id)
+
+    if ((count || 0) > 0) {
+      alert("لا يمكن حذف الفئة لأنها مرتبطة بمنتجات")
+      return
+    }
+
     if (!confirm("هل أنت متأكد من الحذف؟")) return
+
     await supabase.from("categories").delete().eq("id", id)
     fetchCategories()
   }
 
+  // 🔥 تعديل مع منع التكرار وتحديث slug
   async function updateCategory() {
+
     if (!editing) return
 
-    const { error } = await supabase
-      .from("categories")
-      .update({ name: newName })
-      .eq("id", editing.id)
+    const trimmed = newName.trim()
 
-    console.log("Update error:", error)
+    if (!trimmed) {
+      alert("اسم الفئة مطلوب")
+      return
+    }
+
+    // 🔥 منع تكرار الاسم
+    const { data: existing } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("name", trimmed)
+      .neq("id", editing.id)
+
+    if (existing && existing.length > 0) {
+      alert("اسم الفئة موجود مسبقاً")
+      return
+    }
+
+    const newSlug = trimmed.toLowerCase().replace(/\s+/g, "-")
+
+    await supabase
+      .from("categories")
+      .update({
+        name: trimmed,
+        slug: newSlug
+      })
+      .eq("id", editing.id)
 
     setEditing(null)
     fetchCategories()
@@ -58,9 +96,10 @@ export default function ManageCategories() {
             key={cat.id}
             className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex justify-between items-center"
           >
-            <p className="font-semibold text-lg">
-              {cat.name}
-            </p>
+            <div>
+              <p className="font-semibold text-lg">{cat.name}</p>
+              <p className="text-xs text-gray-500">slug: {cat.slug}</p>
+            </div>
 
             <div className="flex gap-3">
 
@@ -69,18 +108,16 @@ export default function ManageCategories() {
                   setEditing(cat)
                   setNewName(cat.name)
                 }}
-                className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600"
+                className="bg-blue-500 text-white px-4 py-2 rounded-xl"
               >
                 <Pencil size={16} />
-                تعديل
               </button>
 
               <button
                 onClick={() => deleteCategory(cat.id)}
-                className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600"
+                className="bg-red-500 text-white px-4 py-2 rounded-xl"
               >
                 <Trash2 size={16} />
-                حذف
               </button>
 
             </div>
@@ -107,10 +144,10 @@ export default function ManageCategories() {
               className="w-full border p-3 rounded-xl"
             />
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setEditing(null)}
-                className="px-4 py-2 rounded-xl border"
+                className="border px-4 py-2 rounded-xl"
               >
                 إلغاء
               </button>
