@@ -83,14 +83,22 @@ export default function ManageProducts() {
   // تفعيل / إيقاف
   // ==========================
 
-  async function toggleActive(product: Product) {
-    await supabase
-      .from("products")
-      .update({ is_active: !product.is_active })
-      .eq("id", product.id)
+async function toggleActive(product: Product) {
 
-    fetchData()
+  const { data, error } = await supabase
+    .from("products")
+    .update({ is_active: !product.is_active })
+    .eq("id", product.id)
+
+  console.log("UPDATE RESULT:", data, error)
+
+  if (error) {
+    alert("خطأ: " + error.message)
+    return
   }
+
+  fetchData()
+}
 
   // ==========================
   // تحديث المنتج
