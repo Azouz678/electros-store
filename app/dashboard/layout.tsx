@@ -35,9 +35,7 @@ export default function DashboardLayout({
   //   checkRole()
   // }, [])
 
-  useEffect(() => {
-
-  let interval: NodeJS.Timeout
+ useEffect(() => {
 
   async function validateUser() {
 
@@ -67,12 +65,7 @@ export default function DashboardLayout({
 
   validateUser()
 
-  // 🔥 تحقق كل 3 ثواني
-  interval = setInterval(validateUser, 3000)
-
-  return () => clearInterval(interval)
-
-}, [])
+}, [pathname])
 
   async function fetchCounts() {
     const { count: products } = await supabase
