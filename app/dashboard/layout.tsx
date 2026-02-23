@@ -49,25 +49,32 @@ export default function DashboardLayout({
   }
 
   // ✅ قراءة الدور
-  async function checkRole() {
+async function checkRole() {
 
-    const { data: userData } = await supabase.auth.getUser()
+  const { data: userData } = await supabase.auth.getUser()
 
-    if (!userData.user) {
-      router.push("/login")
-      return
-    }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userData.user.id)
-      .single()
-
-    if (profile?.role === "super_admin") {
-      setIsSuperAdmin(true)
-    }
+  if (!userData.user) {
+    router.push("/login")
+    return
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", userData.user.id)
+    .single()
+
+  // ❗ إذا الحساب معطل → تسجيل خروج فوري
+  if (!profile?.is_active) {
+    await supabase.auth.signOut()
+    router.push("/login")
+    return
+  }
+
+  if (profile.role === "super_admin") {
+    setIsSuperAdmin(true)
+  }
+}
 
   // القائمة الأساسية
   const baseMenu = [
