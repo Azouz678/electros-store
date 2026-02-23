@@ -30,10 +30,49 @@ export default function DashboardLayout({
   // ✅ جديد
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
 
+  // useEffect(() => {
+  //   fetchCounts()
+  //   checkRole()
+  // }, [])
+
   useEffect(() => {
-    fetchCounts()
-    checkRole()
-  }, [])
+
+  let interval: NodeJS.Timeout
+
+  async function validateUser() {
+
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData.user) {
+      router.push("/login")
+      return
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, is_active")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile?.is_active) {
+      await supabase.auth.signOut()
+      router.push("/login")
+      return
+    }
+
+    if (profile.role === "super_admin") {
+      setIsSuperAdmin(true)
+    }
+  }
+
+  validateUser()
+
+  // 🔥 تحقق كل 3 ثواني
+  interval = setInterval(validateUser, 3000)
+
+  return () => clearInterval(interval)
+
+}, [])
 
   async function fetchCounts() {
     const { count: products } = await supabase
