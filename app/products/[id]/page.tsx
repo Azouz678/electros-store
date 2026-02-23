@@ -16,6 +16,7 @@ export default async function ProductPage(
   .from("products")
   .select("*")
   .eq("id", id)
+  .eq("is_active", true)
   .single()
 
   if (!product) {

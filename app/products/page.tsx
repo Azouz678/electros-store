@@ -15,7 +15,7 @@ export default async function ProductsPage() {
   const { data: products } = await supabase
     .from("products")
     .select("*")
-
+    .eq("is_active", true)
   return (
     <SiteShell>
       <h1 className="mb-8 text-3xl font-bold">كل المنتجات</h1>

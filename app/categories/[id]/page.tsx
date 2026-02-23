@@ -26,6 +26,7 @@ export default async function CategoryPage(
     .from("products")
     .select("*")
     .eq("category_id", id)
+    .eq("is_active", true)
 
   return (
     <SiteShell>
