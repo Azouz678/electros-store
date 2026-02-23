@@ -1,6 +1,7 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 
+
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-slate-950/80">

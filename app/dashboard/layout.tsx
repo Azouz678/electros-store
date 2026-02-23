@@ -123,8 +123,10 @@ export default function DashboardLayout({
           </button>
         </div>
 
-        <nav className="space-y-3">
+    <nav className="space-y-3">
+
           {menu.map(item => {
+
             const Icon = item.icon
             const active = pathname === item.href
 
@@ -133,28 +135,63 @@ export default function DashboardLayout({
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl 
-                transition-all duration-200
-                ${active
-                  ? "bg-[#C59B3C] text-white shadow-lg"
-                  : "hover:bg-[#C59B3C]/10 dark:hover:bg-[#C59B3C]/20"}`}
+                className={`
+            group relative flex items-center justify-between
+            px-4 py-3 pl-6 rounded-xl
+            transition-all duration-300 ease-out
+            ${active
+              ? "bg-[#C59B3C]/10 dark:bg-[#C59B3C]/20 scale-[1.02]"
+              : "hover:bg-[#C59B3C]/10 dark:hover:bg-[#C59B3C]/20 hover:scale-[1.02]"
+            }
+            `}
               >
-                <div className="flex items-center gap-3">
-                  <Icon 
-                    size={20} 
-                    className={active ? "text-white" : "text-[#C59B3C]"} 
+
+                {/* Left Glow Effect */}
+                  {active && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 
+          w-1 h-6 bg-[#C59B3C] rounded-r-full 
+          shadow-md shadow-[#C59B3C]/50
+          animate-pulse" />
+        )}
+
+                <div className="flex items-center gap-3 relative z-10">
+
+                  <Icon
+                    size={20}
+                    className={`
+                      transition-all duration-300
+                      ${active
+                        ? "text-white"
+                        : "text-[#C59B3C] group-hover:scale-110 group-hover:text-[#C59B3C]"
+                      }
+                    `}
                   />
-                  {item.name}
+
+                  <span className="font-medium tracking-wide">
+                    {item.name}
+                  </span>
+
                 </div>
 
                 {item.badge !== undefined && (
-                  <span className="bg-[#C59B3C] text-white text-xs px-2 py-1 rounded-full">
+                  <span
+                    className={`
+                      relative z-10 text-xs px-2 py-1 rounded-full
+                      transition-all duration-300
+                      ${active
+                        ? "bg-white text-[#C59B3C]"
+                        : "bg-[#C59B3C] text-white group-hover:shadow-md group-hover:shadow-[#C59B3C]/40"
+                      }
+                    `}
+                  >
                     {item.badge}
                   </span>
                 )}
+
               </Link>
             )
           })}
+
         </nav>
 
         {/* Theme Toggle */}

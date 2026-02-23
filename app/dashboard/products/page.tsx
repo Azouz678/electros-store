@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Pencil, Trash2, Power } from "lucide-react"
 
+
 type Product = {
   id: string
   name: string
@@ -33,7 +34,8 @@ export default function ManageProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Product | null>(null)
-
+  const [search, setSearch] = useState("")
+  // const [products, setProducts] = useState<any[]>([])  
   const [newName, setNewName] = useState("")
   const [newPrice, setNewPrice] = useState("")
   const [newDescription, setNewDescription] = useState("")
@@ -43,12 +45,14 @@ export default function ManageProducts() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+    fetchProducts()
+  }, [search])
 
   async function fetchData() {
     const { data: productsData } = await supabase
       .from("products")
       .select("*")
+      .ilike("name", `%${search}%`)
       .order("created_at", { ascending: false })
 
     const { data: categoriesData } = await supabase
@@ -58,6 +62,21 @@ export default function ManageProducts() {
     setProducts(productsData || [])
     setCategories(categoriesData || [])
   }
+
+  async function fetchProducts() {
+  let query = supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  if (search.trim() !== "") {
+    query = query.ilike("name", `%${search}%`)
+  }
+
+  const { data } = await query
+  setProducts(data || [])
+}
+
 
   // ==========================
   // حذف المنتج + حذف الصورة
@@ -169,12 +188,32 @@ async function toggleActive(product: Product) {
   }
 
   return (
+
     <div className="space-y-6">
 
       <h1 className="text-2xl font-bold">
         إدارة المنتجات
       </h1>
+        <div className="mb-6">
 
+    </div>
+    <div className="mb-6 relative">
+  <input
+    type="text"
+    placeholder="ابحث عن منتج..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full p-3 pl-10 rounded-xl
+    bg-white dark:bg-[#1E293B]
+    border border-gray-200 dark:border-[#334155]
+    focus:ring-2 focus:ring-[#C59B3C]
+    outline-none transition-all duration-300"
+  />
+
+  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C59B3C]">
+    🔍
+  </span>
+</div>
       <div className="space-y-4">
 
         {products.map(product => {
