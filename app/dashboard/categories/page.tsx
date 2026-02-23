@@ -25,21 +25,38 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
+  const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
   useEffect(() => {
+    fetchData()
     fetchCategories()
-  }, [])
+  }, [search])
 
-  async function fetchCategories() {
+  async function fetchData() {
     const { data } = await supabase
       .from("categories")
       .select("*")
+      .ilike("name", `%${search}%`)
       .order("created_at", { ascending: false })
 
     setCategories(data || [])
   }
+
+ async function fetchCategories() {
+  let query = supabase
+    .from("categories")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  if (search.trim() !== "") {
+    query = query.ilike("name", `%${search}%`)
+  }
+
+  const { data } = await query
+  setCategories(data || [])
+}
 
   // =============================
   // حذف
@@ -131,7 +148,7 @@ export default function ManageCategories() {
     setEditing(null)
     setNewImage(null)
     setPreview(null)
-    fetchCategories()
+    fetchData()
   }
 
   return (
@@ -140,6 +157,24 @@ export default function ManageCategories() {
       <h1 className="text-2xl font-bold">
         إدارة الفئات
       </h1>
+
+         <div className="mb-6 relative">
+  <input
+    type="text"
+    placeholder="ابحث عن فئة..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="w-full p-3 pl-10 rounded-xl
+    bg-white dark:bg-[#1E293B]
+    border border-gray-200 dark:border-[#334155]
+    focus:ring-2 focus:ring-[#C59B3C]
+    outline-none transition-all duration-300"
+  />
+
+  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C59B3C]">
+    🔍
+  </span>
+</div>
 
       <div className="space-y-4">
 

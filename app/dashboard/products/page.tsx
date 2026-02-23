@@ -194,9 +194,9 @@ async function toggleActive(product: Product) {
       <h1 className="text-2xl font-bold">
         إدارة المنتجات
       </h1>
-        <div className="mb-6">
+        {/* <div className="mb-6">
 
-    </div>
+    </div> */}
     <div className="mb-6 relative">
   <input
     type="text"
