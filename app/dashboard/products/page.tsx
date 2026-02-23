@@ -85,15 +85,17 @@ export default function ManageProducts() {
 
 async function toggleActive(product: Product) {
 
+  console.log("CLICKED", product.id)
+
   const { data, error } = await supabase
     .from("products")
     .update({ is_active: !product.is_active })
     .eq("id", product.id)
 
-  console.log("UPDATE RESULT:", data, error)
+  console.log("RESULT:", data, error)
 
   if (error) {
-    alert("خطأ: " + error.message)
+    alert(error.message)
     return
   }
 
