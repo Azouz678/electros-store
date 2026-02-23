@@ -136,7 +136,7 @@ export default function ManageAdmins() {
           <button
             onClick={addAdmin}
             disabled={loading}
-            className="bg-indigo-600 text-white rounded-xl"
+            className="bg-indigo-600 text-white p-3 rounded-xl"
           >
             {loading ? "جارٍ الإنشاء..." : "إضافة"}
           </button>
