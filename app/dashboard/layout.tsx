@@ -10,7 +10,8 @@ import {
   Boxes,
   Tags,
   Menu,
-  X
+  X,
+  Shield
 } from "lucide-react"
 
 export default function DashboardLayout({
@@ -26,46 +27,14 @@ export default function DashboardLayout({
   const [productCount, setProductCount] = useState(0)
   const [categoryCount, setCategoryCount] = useState(0)
 
-useEffect(() => {
+  // ✅ جديد
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
 
-  async function checkAccess() {
-
-    const { data: userData } = await supabase.auth.getUser()
-
-    // ❌ إذا ليس مسجل دخول
-    if (!userData.user) {
-      router.push("/login")
-      return
-    }
-
-    // 🔍 نبحث عن profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userData.user.id)
-      .single()
-
-    // ❌ إذا لا يوجد profile
-    if (!profile) {
-      await supabase.auth.signOut()
-      router.push("/login")
-      return
-    }
-
-    // ❌ إذا ليس admin
-    if (!["admin", "super_admin"].includes(profile.role)) {
-      await supabase.auth.signOut()
-      router.push("/login")
-      return
-    }
-
-    // ✅ إذا كل شيء صحيح
+  useEffect(() => {
     fetchCounts()
-  }
+    checkRole()
+  }, [])
 
-  checkAccess()
-
-}, [])
   async function fetchCounts() {
     const { count: products } = await supabase
       .from("products")
@@ -79,7 +48,29 @@ useEffect(() => {
     setCategoryCount(categories || 0)
   }
 
-  const menu = [
+  // ✅ قراءة الدور
+  async function checkRole() {
+
+    const { data: userData } = await supabase.auth.getUser()
+
+    if (!userData.user) {
+      router.push("/login")
+      return
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (profile?.role === "super_admin") {
+      setIsSuperAdmin(true)
+    }
+  }
+
+  // القائمة الأساسية
+  const baseMenu = [
     {
       name: "الرئيسية",
       href: "/dashboard/home",
@@ -104,10 +95,22 @@ useEffect(() => {
     }
   ]
 
+  // ✅ نضيف إدارة الأدمن فقط إذا super_admin
+  const menu = isSuperAdmin
+    ? [
+        ...baseMenu,
+        {
+          name: "إدارة الأدمن",
+          href: "/dashboard/admins",
+          icon: Shield
+        }
+      ]
+    : baseMenu
+
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-slate-900">
 
-      {/* ===== Mobile Header ===== */}
+      {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-md p-4 flex justify-between items-center z-40">
         <button onClick={() => setOpen(true)}>
           <Menu size={28} />
@@ -115,7 +118,7 @@ useEffect(() => {
         <h2 className="font-bold">لوحة التحكم</h2>
       </div>
 
-      {/* ===== Sidebar ===== */}
+      {/* Sidebar */}
       <aside className={`fixed lg:static z-50 top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 shadow-xl p-6 transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
 
@@ -166,7 +169,6 @@ useEffect(() => {
 
       </aside>
 
-      {/* ===== Content ===== */}
       <main className="flex-1 p-6 lg:p-10 mt-16 lg:mt-0">
         {children}
       </main>
