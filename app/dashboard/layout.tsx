@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useTheme } from "@/components/theme-provider"
+import { Moon, Sun } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import {
   LayoutDashboard,
@@ -22,7 +24,7 @@ export default function DashboardLayout({
 
   const pathname = usePathname()
   const router = useRouter()
-
+  const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [productCount, setProductCount] = useState(0)
   const [categoryCount, setCategoryCount] = useState(0)
@@ -197,6 +199,14 @@ async function checkRole() {
             )
           })}
         </nav>
+
+<button
+      onClick={toggleTheme}
+      className="mt-6 w-full flex items-center justify-center gap-2 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-white py-2 rounded-xl transition hover:scale-105"
+    >
+    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+    {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+</button>
 
         <button
           onClick={async () => {

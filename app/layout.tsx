@@ -13,7 +13,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
+         <ThemeProvider>
           {children}
         </ThemeProvider>
       </body>
