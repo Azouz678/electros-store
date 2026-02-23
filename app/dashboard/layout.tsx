@@ -26,10 +26,46 @@ export default function DashboardLayout({
   const [productCount, setProductCount] = useState(0)
   const [categoryCount, setCategoryCount] = useState(0)
 
-  useEffect(() => {
-    fetchCounts()
-  }, [])
+useEffect(() => {
 
+  async function checkAccess() {
+
+    const { data: userData } = await supabase.auth.getUser()
+
+    // ❌ إذا ليس مسجل دخول
+    if (!userData.user) {
+      router.push("/login")
+      return
+    }
+
+    // 🔍 نبحث عن profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    // ❌ إذا لا يوجد profile
+    if (!profile) {
+      await supabase.auth.signOut()
+      router.push("/login")
+      return
+    }
+
+    // ❌ إذا ليس admin
+    if (!["admin", "super_admin"].includes(profile.role)) {
+      await supabase.auth.signOut()
+      router.push("/login")
+      return
+    }
+
+    // ✅ إذا كل شيء صحيح
+    fetchCounts()
+  }
+
+  checkAccess()
+
+}, [])
   async function fetchCounts() {
     const { count: products } = await supabase
       .from("products")
