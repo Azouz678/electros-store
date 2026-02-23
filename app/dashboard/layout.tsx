@@ -64,6 +64,8 @@ export default function DashboardLayout({
   }
 
   validateUser()
+     fetchCounts()
+     checkRole()
 
 }, [pathname])
 
