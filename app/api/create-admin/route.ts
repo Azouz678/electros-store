@@ -13,10 +13,9 @@ export async function POST(req: Request) {
     const { email, password } = await req.json()
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 })
+      return NextResponse.json({ error: "الإيميل والباسورد مطلوبين" }, { status: 400 })
     }
 
-    // إنشاء المستخدم في auth
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -27,13 +26,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // إضافة profile
     const { error: profileError } = await supabase
       .from("profiles")
       .insert({
         id: data.user.id,
-        email: email,
-        role: "admin"
+        email,
+        role: "admin",
+        is_active: true
       })
 
     if (profileError) {

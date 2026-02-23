@@ -14,23 +14,37 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
-  async function handleLogin() {
-    setLoading(true)
-    setErrorMessage("")
+async function handleLogin() {
+  setLoading(true)
+  setErrorMessage("")
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
 
+  if (error) {
     setLoading(false)
-
-    if (error) {
-      setErrorMessage("البريد أو كلمة المرور غير صحيحة")
-    } else {
-      router.push("/dashboard")
-    }
+    setErrorMessage("البريد أو كلمة المرور غير صحيحة")
+    return
   }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_active")
+    .eq("id", data.user.id)
+    .single()
+
+  if (!profile?.is_active) {
+    await supabase.auth.signOut()
+    setLoading(false)
+    setErrorMessage("تم تعطيل حسابك من قبل الإدارة")
+    return
+  }
+
+  setLoading(false)
+  router.push("/dashboard")
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6">
