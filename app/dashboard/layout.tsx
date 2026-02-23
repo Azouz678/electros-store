@@ -25,51 +25,45 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
+
   const [open, setOpen] = useState(false)
   const [productCount, setProductCount] = useState(0)
   const [categoryCount, setCategoryCount] = useState(0)
-
-  // ✅ جديد
   const [isSuperAdmin, setIsSuperAdmin] = useState(false)
 
-  // useEffect(() => {
-  //   fetchCounts()
-  //   checkRole()
-  // }, [])
+  useEffect(() => {
 
- useEffect(() => {
+    async function validateUser() {
 
-  async function validateUser() {
+      const { data: userData } = await supabase.auth.getUser()
 
-    const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) {
+        router.push("/login")
+        return
+      }
 
-    if (!userData.user) {
-      router.push("/login")
-      return
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, is_active")
+        .eq("id", userData.user.id)
+        .single()
+
+      if (!profile?.is_active) {
+        await supabase.auth.signOut()
+        router.push("/login")
+        return
+      }
+
+      if (profile.role === "super_admin") {
+        setIsSuperAdmin(true)
+      }
+
+      fetchCounts()
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", userData.user.id)
-      .single()
+    validateUser()
 
-    if (!profile?.is_active) {
-      await supabase.auth.signOut()
-      router.push("/login")
-      return
-    }
-
-    if (profile.role === "super_admin") {
-      setIsSuperAdmin(true)
-    }
-  }
-
-  validateUser()
-     fetchCounts()
-     checkRole()
-
-}, [pathname])
+  }, [pathname])
 
   async function fetchCounts() {
     const { count: products } = await supabase
@@ -84,85 +78,42 @@ export default function DashboardLayout({
     setCategoryCount(categories || 0)
   }
 
-  // ✅ قراءة الدور
-async function checkRole() {
-
-  const { data: userData } = await supabase.auth.getUser()
-
-  if (!userData.user) {
-    router.push("/login")
-    return
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, is_active")
-    .eq("id", userData.user.id)
-    .single()
-
-  // ❗ إذا الحساب معطل → تسجيل خروج فوري
-  if (!profile?.is_active) {
-    await supabase.auth.signOut()
-    router.push("/login")
-    return
-  }
-
-  if (profile.role === "super_admin") {
-    setIsSuperAdmin(true)
-  }
-}
-
-  // القائمة الأساسية
   const baseMenu = [
-    {
-      name: "الرئيسية",
-      href: "/dashboard/home",
-      icon: LayoutDashboard
-    },
-    {
-      name: "إضافة",
-      href: "/dashboard",
-      icon: PlusCircle
-    },
-    {
-      name: "المنتجات",
-      href: "/dashboard/products",
-      icon: Boxes,
-      badge: productCount
-    },
-    {
-      name: "الفئات",
-      href: "/dashboard/categories",
-      icon: Tags,
-      badge: categoryCount
-    }
+    { name: "الرئيسية", href: "/dashboard/home", icon: LayoutDashboard },
+    { name: "إضافة", href: "/dashboard", icon: PlusCircle },
+    { name: "المنتجات", href: "/dashboard/products", icon: Boxes, badge: productCount },
+    { name: "الفئات", href: "/dashboard/categories", icon: Tags, badge: categoryCount }
   ]
 
-  // ✅ نضيف إدارة الأدمن فقط إذا super_admin
   const menu = isSuperAdmin
-    ? [
-        ...baseMenu,
-        {
-          name: "إدارة الأدمن",
-          href: "/dashboard/admins",
-          icon: Shield
-        }
-      ]
+    ? [...baseMenu, { name: "إدارة الأدمن", href: "/dashboard/admins", icon: Shield }]
     : baseMenu
 
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-slate-900">
+    <div className="flex min-h-screen 
+      bg-[#F3F4F6] 
+      dark:bg-[#0F172A] 
+      text-[#1E293B] 
+      dark:text-white 
+      transition-colors duration-300">
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white dark:bg-slate-800 shadow-md p-4 flex justify-between items-center z-40">
+      <div className="lg:hidden fixed top-0 left-0 right-0 
+        bg-white dark:bg-[#1E293B] 
+        border-b border-gray-200 dark:border-[#334155]
+        p-4 flex justify-between items-center z-40">
         <button onClick={() => setOpen(true)}>
           <Menu size={28} />
         </button>
-        <h2 className="font-bold">لوحة التحكم</h2>
+        <h2 className="font-bold text-lg">لوحة التحكم</h2>
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static z-50 top-0 left-0 h-full w-64 bg-white dark:bg-slate-800 shadow-xl p-6 transition-transform duration-300
+      <aside className={`fixed lg:static z-50 top-0 left-0 h-full w-64 
+        bg-white 
+        dark:bg-[#1E293B] 
+        border-r border-gray-200 dark:border-[#334155]
+        shadow-xl p-6 transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
 
         <div className="flex justify-between items-center mb-8">
@@ -175,23 +126,29 @@ async function checkRole() {
         <nav className="space-y-3">
           {menu.map(item => {
             const Icon = item.icon
+            const active = pathname === item.href
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl transition
-                  ${pathname === item.href
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-gray-200 dark:hover:bg-slate-700"}`}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl 
+                transition-all duration-200
+                ${active
+                  ? "bg-[#C59B3C] text-white shadow-lg"
+                  : "hover:bg-[#C59B3C]/10 dark:hover:bg-[#C59B3C]/20"}`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon size={20} />
+                  <Icon 
+                    size={20} 
+                    className={active ? "text-white" : "text-[#C59B3C]"} 
+                  />
                   {item.name}
                 </div>
 
                 {item.badge !== undefined && (
-                  <span className="bg-indigo-500 text-white text-xs px-2 py-1 rounded-full">
+                  <span className="bg-[#C59B3C] text-white text-xs px-2 py-1 rounded-full">
                     {item.badge}
                   </span>
                 )}
@@ -200,20 +157,29 @@ async function checkRole() {
           })}
         </nav>
 
-<button
-      onClick={toggleTheme}
-      className="mt-6 w-full flex items-center justify-center gap-2 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-white py-2 rounded-xl transition hover:scale-105"
-    >
-    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-    {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
-</button>
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="mt-6 w-full flex items-center justify-center gap-2 
+          bg-[#C59B3C] text-white 
+          py-2 rounded-xl shadow-md 
+          hover:scale-105 transition-all duration-200"
+        >
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+        </button>
 
+        {/* Logout */}
         <button
           onClick={async () => {
             await supabase.auth.signOut()
             router.push("/login")
           }}
-          className="mt-10 w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600"
+          className="mt-6 w-full 
+          bg-[#1E293B] 
+          dark:bg-[#C59B3C] 
+          text-white py-2 rounded-xl 
+          hover:opacity-90 transition"
         >
           تسجيل خروج
         </button>
