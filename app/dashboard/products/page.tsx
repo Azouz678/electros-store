@@ -8,6 +8,7 @@ type Product = {
   id: string
   name: string
   price: string
+  currency: string
   description: string
   image: string
   category_id: string
@@ -19,6 +20,15 @@ type Category = {
   id: string
   name: string
 }
+
+function formatPrice(value: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "YER",
+    minimumFractionDigits: 0
+  }).format(value)
+}
+
 
 function generateSlug(text: string) {
   return text
@@ -201,8 +211,9 @@ export default function ManageProducts() {
                 />
                 <div>
                   <p className="font-semibold text-lg">{product.name}</p>
-                  <p className="text-sm text-gray-500">{product.price}</p>
-                  <p className="text-xs text-gray-400">الفئة: {categoryName}</p>
+                  <p className="text-lg font-bold text-green-600">
+                    {formatPrice(Number(product.price), product.currency)}
+                  </p>                  <p className="text-xs text-gray-400">الفئة: {categoryName}</p>
                   <p className={`text-xs ${product.is_active ? "text-green-600" : "text-red-500"}`}>
                     {product.is_active ? "مفعل" : "موقوف"}
                   </p>
