@@ -44,12 +44,11 @@ export default function LoginPage() {
       return
     }
 
-    // انميشن نجاح
     setSuccess(true)
 
     setTimeout(() => {
       router.push("/dashboard/home")
-    }, 900)
+    }, 800)
   }
 
   return (
@@ -63,11 +62,10 @@ export default function LoginPage() {
       dark:to-[#0F172A]
       transition-colors duration-700 p-6 overflow-hidden">
 
-      {/* Glow Elements */}
+      {/* Glow */}
       <div className="absolute w-96 h-96 bg-[#C59B3C]/30 blur-3xl rounded-full -top-32 -left-32 animate-pulse" />
       <div className="absolute w-96 h-96 bg-[#C59B3C]/20 blur-3xl rounded-full -bottom-32 -right-32 animate-pulse" />
 
-      {/* Card */}
       <div className={`
         relative z-10 w-full max-w-md
         bg-white/70 dark:bg-[#111827]/80
@@ -78,8 +76,7 @@ export default function LoginPage() {
         ${success ? "opacity-0 scale-95" : "opacity-100 scale-100"}
       `}>
 
-        {/* Header */}
-        <div className="text-center space-y-2 animate-[fadeIn_.8s_ease-out]">
+        <div className="text-center space-y-2 animate-fade-in">
           <h1 className="text-2xl font-bold tracking-wide bg-gradient-to-r from-[#C59B3C] to-amber-500 bg-clip-text text-transparent">
             لوحة التحكم
           </h1>
@@ -88,16 +85,14 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Error */}
         {errorMessage && (
           <div className="bg-red-100 dark:bg-red-900/40
             text-red-600 dark:text-red-400
-            p-3 rounded-xl text-sm text-center animate-shake">
+            p-3 rounded-xl text-sm text-center animate-bounce">
             {errorMessage}
           </div>
         )}
 
-        {/* Email */}
         <div className="space-y-2">
           <label className="text-sm text-gray-600 dark:text-gray-400">
             البريد الإلكتروني
@@ -118,7 +113,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* Password */}
         <div className="space-y-2">
           <label className="text-sm text-gray-600 dark:text-gray-400">
             كلمة المرور
@@ -137,7 +131,6 @@ export default function LoginPage() {
                 outline-none transition-all duration-300"
             />
 
-            {/* Safe Space Icon */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -150,7 +143,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Login Button */}
         <button
           onClick={handleLogin}
           disabled={loading}
@@ -166,27 +158,6 @@ export default function LoginPage() {
         </button>
 
       </div>
-
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes shake {
-          0% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          50% { transform: translateX(5px); }
-          75% { transform: translateX(-5px); }
-          100% { transform: translateX(0); }
-        }
-
-        .animate-shake {
-          animation: shake 0.4s ease;
-        }
-      `}</style>
-
     </div>
   )
 }
