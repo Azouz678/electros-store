@@ -97,7 +97,7 @@ export default function LoginPage() {
           <label className="text-sm text-gray-600 dark:text-gray-400">
             البريد الإلكتروني
           </label>
-         <br /><br />
+         <br />
         <input
           type="email"
           autoComplete="email"
@@ -120,7 +120,7 @@ export default function LoginPage() {
             كلمة المرور
             
           </label>
-        <br /><br />
+        <br />
 
           <div className="relative">
             <input
