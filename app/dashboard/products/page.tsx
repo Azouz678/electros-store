@@ -43,14 +43,13 @@ export default function ManageProducts() {
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
-  const [updateState, setUpdateState] = useState<"idle" | "loading" | "success">("idle")
+  const [updateBtn, setUpdateBtn] = useState<"idle" | "loading" | "success">("idle")
 
   useEffect(() => {
     fetchData()
   }, [search])
 
   async function fetchData() {
-
     let query = supabase
       .from("products")
       .select("*")
@@ -73,7 +72,6 @@ export default function ManageProducts() {
   }
 
   async function toggleActive(product: Product) {
-
     await supabase
       .from("products")
       .update({ is_active: !product.is_active })
@@ -83,7 +81,6 @@ export default function ManageProducts() {
   }
 
   async function deleteProduct(product: Product) {
-
     if (!confirm("هل أنت متأكد من الحذف؟")) return
 
     if (product.image) {
@@ -101,23 +98,25 @@ export default function ManageProducts() {
 
     if (!editing) return
 
-    setUpdateState("loading")
+    setUpdateBtn("loading")
 
     const trimmed = newName.trim()
     if (!trimmed) {
-      setUpdateState("idle")
+      setUpdateBtn("idle")
       return alert("اسم المنتج مطلوب")
     }
 
     const newSlug = generateSlug(trimmed)
-
     let imageUrl = editing.image
 
     if (newImage) {
 
-      const oldFile = editing.image.split("/").pop()
-      if (oldFile) {
-        await supabase.storage.from("products").remove([oldFile])
+      // حذف الصورة القديمة
+      if (editing.image) {
+        const oldFile = editing.image.split("/").pop()
+        if (oldFile) {
+          await supabase.storage.from("products").remove([oldFile])
+        }
       }
 
       const fileName = `${Date.now()}-${newImage.name}`
@@ -127,7 +126,7 @@ export default function ManageProducts() {
         .upload(fileName, newImage)
 
       if (error) {
-        setUpdateState("idle")
+        setUpdateBtn("idle")
         return alert("فشل رفع الصورة")
       }
 
@@ -150,12 +149,14 @@ export default function ManageProducts() {
       })
       .eq("id", editing.id)
 
-    setUpdateState("success")
+    setUpdateBtn("success")
     showSuccess("تم تحديث المنتج بنجاح ✅")
 
     setTimeout(() => {
       setEditing(null)
-      setUpdateState("idle")
+      setNewImage(null)
+      setPreview(null)
+      setUpdateBtn("idle")
       fetchData()
     }, 1200)
   }
@@ -164,25 +165,21 @@ export default function ManageProducts() {
     <div className="space-y-6">
 
       {successMessage && (
-        <div className="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-bounce">
+        <div className="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 animate-bounce">
           <CheckCircle size={18} />
           {successMessage}
         </div>
       )}
 
-      <h1 className="text-2xl font-bold">
-        إدارة المنتجات
-      </h1>
+      <h1 className="text-2xl font-bold">إدارة المنتجات</h1>
 
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="ابحث عن منتج..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full p-3 rounded-xl bg-white dark:bg-[#1E293B] border focus:ring-2 focus:ring-[#C59B3C] outline-none transition"
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="ابحث عن منتج..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-3 rounded-xl bg-white dark:bg-[#1E293B] border focus:ring-2 focus:ring-[#C59B3C] outline-none transition"
+      />
 
       <div className="space-y-4">
 
@@ -198,12 +195,10 @@ export default function ManageProducts() {
             >
 
               <div className="flex gap-4 items-center">
-
                 <img
                   src={product.image}
                   className="w-20 h-20 object-cover rounded-xl"
                 />
-
                 <div>
                   <p className="font-semibold text-lg">{product.name}</p>
                   <p className="text-sm text-gray-500">{product.price}</p>
@@ -215,11 +210,7 @@ export default function ManageProducts() {
               </div>
 
               <div className="flex gap-2">
-
-                <button
-                  onClick={() => toggleActive(product)}
-                  className="bg-yellow-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
-                >
+                <button onClick={() => toggleActive(product)} className="bg-yellow-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition">
                   <Power size={16} />
                 </button>
 
@@ -243,7 +234,6 @@ export default function ManageProducts() {
                 >
                   <Trash2 size={16} />
                 </button>
-
               </div>
 
             </div>
@@ -255,49 +245,65 @@ export default function ManageProducts() {
       {editing && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
 
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl w-[420px] space-y-4 shadow-2xl animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl w-[420px] space-y-4 shadow-2xl">
 
             <h2 className="text-xl font-bold">تعديل المنتج</h2>
 
-            <input value={newName} onChange={e => setNewName(e.target.value)} className="w-full border p-3 rounded-xl" />
-            <input value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border p-3 rounded-xl" />
-            <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border p-3 rounded-xl" />
+            <input value={newName} onChange={e => setNewName(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
+            <input value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
+            <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
 
-            <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="w-full border p-3 rounded-xl">
+            <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700">
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
 
-            <div className="flex justify-end gap-3">
+            <label className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C59B3C] to-amber-500 text-white text-sm font-medium shadow-md hover:scale-105 transition cursor-pointer">
+              <ImagePlus size={16} />
+              تغيير الصورة
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setNewImage(e.target.files[0])
+                    setPreview(URL.createObjectURL(e.target.files[0]))
+                  }
+                }}
+              />
+            </label>
 
-              <button
-                onClick={() => setEditing(null)}
-                className="border px-4 py-2 rounded-xl"
-              >
+            {preview && (
+              <div className="w-full h-44 rounded-2xl overflow-hidden shadow-lg">
+                <img src={preview} className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setEditing(null)} className="border px-4 py-2 rounded-xl">
                 إلغاء
               </button>
 
               <button
                 onClick={updateProduct}
-                disabled={updateState === "loading"}
-                className={`
-                  px-4 py-2 rounded-xl text-white font-semibold transition-all duration-300
-                  ${updateState === "idle" && "bg-green-600 hover:scale-105"}
-                  ${updateState === "loading" && "bg-gray-400 cursor-not-allowed"}
-                  ${updateState === "success" && "bg-green-700 animate-pulse"}
+                disabled={updateBtn === "loading"}
+                className={`px-4 py-2 rounded-xl text-white font-semibold transition-all duration-300
+                  ${updateBtn === "idle" && "bg-green-600 hover:scale-105"}
+                  ${updateBtn === "loading" && "bg-gray-400 cursor-not-allowed"}
+                  ${updateBtn === "success" && "bg-green-700 animate-pulse"}
                 `}
               >
-                {updateState === "idle" && "حفظ"}
-                {updateState === "loading" && (
+                {updateBtn === "idle" && "حفظ"}
+                {updateBtn === "loading" && (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     جاري الحفظ...
                   </span>
                 )}
-                {updateState === "success" && "✔ تم بنجاح"}
+                {updateBtn === "success" && "✔ تم بنجاح"}
               </button>
-
             </div>
 
           </div>
