@@ -10,6 +10,17 @@ type Category = {
   name: string
 }
 
+
+/* ===== أضفنا هذه الدالة فقط ===== */
+function formatPrice(value: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0
+  }).format(value)
+}
+
+
 function generateSlug(text: string) {
   return text
     .toLowerCase()
@@ -17,6 +28,9 @@ function generateSlug(text: string) {
     .replace(/[^\u0600-\u06FFa-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
 }
+
+
+
 
 export default function Dashboard() {
 
@@ -29,6 +43,7 @@ export default function Dashboard() {
 
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
+  const [currency, setCurrency] = useState<"YER" | "SAR" | "USD">("YER") /* ===== أضفنا هذا ===== */
   const [description, setDescription] = useState("")
   const [categoryId, setCategoryId] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -184,7 +199,8 @@ export default function Dashboard() {
     await supabase.from("products").insert([
       {
         name,
-        price,
+        price: Number(price),
+        currency,
         description,
         category_id: categoryId,
         image: data.publicUrl,
@@ -305,12 +321,39 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-        <input
-          value={price}
-          placeholder="السعر"
-          onChange={e => setPrice(e.target.value)}
-          className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-        />
+      <div className="space-y-2">
+
+        <div className="flex gap-3">
+
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            value={price}
+            placeholder="السعر"
+            onChange={e => setPrice(e.target.value)}
+            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700 text-lg font-semibold"
+          />
+
+          <select
+            value={currency}
+            onChange={e => setCurrency(e.target.value as any)}
+            className="border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+          >
+            <option value="YER">🇾🇪 YER</option>
+            <option value="SAR">🇸🇦 SAR</option>
+            <option value="USD">🇺🇸 USD</option>
+          </select>
+
+        </div>
+
+        {price && (
+          <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl text-green-700 dark:text-green-400 font-bold text-lg">
+            {formatPrice(Number(price), currency)}
+          </div>
+        )}
+
+      </div>
 
         <select
           value={categoryId}
