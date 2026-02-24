@@ -48,6 +48,7 @@ export default function ManageProducts() {
 
   const [newName, setNewName] = useState("")
   const [newPrice, setNewPrice] = useState("")
+  const [newCurrency, setNewCurrency] = useState<string>("YER")
   const [newDescription, setNewDescription] = useState("")
   const [newCategory, setNewCategory] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
@@ -151,7 +152,8 @@ export default function ManageProducts() {
       .from("products")
       .update({
         name: trimmed,
-        price: newPrice,
+        price: Number(newPrice),
+        currency: newCurrency,
         description: newDescription,
         category_id: newCategory,
         image: imageUrl,
@@ -230,6 +232,7 @@ export default function ManageProducts() {
                     setEditing(product)
                     setNewName(product.name)
                     setNewPrice(product.price)
+                    setNewCurrency(product.currency)
                     setNewDescription(product.description)
                     setNewCategory(product.category_id)
                     setPreview(product.image)
@@ -261,7 +264,32 @@ export default function ManageProducts() {
             <h2 className="text-xl font-bold">تعديل المنتج</h2>
 
             <input value={newName} onChange={e => setNewName(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
-            <input value={newPrice} onChange={e => setNewPrice(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
+              <div className="space-y-2">
+
+                <div className="flex gap-3">
+
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="0"
+                    value={newPrice}
+                    onChange={e => setNewPrice(e.target.value)}
+                    className="w-full border p-3 rounded-xl"
+                  />
+
+                  <select
+                    value={newCurrency}
+                    onChange={e => setNewCurrency(e.target.value as any)}
+                    className="border p-3 rounded-xl"
+                  >
+                    <option value="YER">🇾🇪 YER</option>
+                    <option value="SAR">🇸🇦 SAR</option>
+                    <option value="USD">🇺🇸 USD</option>
+                  </select>
+
+                </div>
+
+              </div>
             <textarea value={newDescription} onChange={e => setNewDescription(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700" />
 
             <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="w-full border p-3 rounded-xl bg-white dark:bg-slate-700">
