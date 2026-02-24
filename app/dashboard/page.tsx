@@ -300,12 +300,19 @@ export default function Dashboard() {
 
         </div>
 
-        <button
+         <button
+          onClick={addCategory}
+          className="w-full bg-purple-600 text-white py-2 rounded-xl hover:bg-purple-700"
+        >
+          {loading ? "جارٍ الإضافة..." : "إضافة الفئة"}
+        </button>
+
+        {/* <button
           onClick={addCategory}
           className="w-full bg-purple-600 text-white py-2 rounded-xl hover:bg-purple-700"
         >
           إضافة الفئة
-        </button>
+        </button> */}
 
       </div>
 

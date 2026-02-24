@@ -256,7 +256,7 @@ export default function ManageCategories() {
             />
 
             <label className="relative flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-[#C59B3C]/60 text-[#C59B3C] hover:bg-[#C59B3C]/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-              <ImagePlus size={18} />
+              <ImagePlus size={16} />
               اختر صورة للفئة
               <input
                 type="file"
