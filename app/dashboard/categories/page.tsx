@@ -258,27 +258,56 @@ export default function ManageCategories() {
               className="w-full border p-3 rounded-xl"
             />
 
-            <label className="flex items-center gap-2 cursor-pointer text-sm">
-              <ImagePlus size={16} />
-              تغيير الصورة
-              <input
-                type="file"
-                hidden
-                onChange={(e) => {
-                  if (e.target.files) {
-                    setNewImage(e.target.files[0])
-                    setPreview(URL.createObjectURL(e.target.files[0]))
-                  }
-                }}
-              />
-            </label>
+      <div className="space-y-3">
 
-            {preview && (
-              <img
-                src={preview}
-                className="w-full h-40 object-cover rounded-xl"
-              />
-            )}
+          <label className="relative flex items-center justify-center gap-2
+            w-full py-3 rounded-xl
+            border-2 border-dashed border-[#C59B3C]/60
+            text-[#C59B3C]
+            hover:bg-[#C59B3C]/10
+            hover:scale-[1.02]
+            transition-all duration-300 cursor-pointer">
+
+            <ImagePlus size={18} />
+            اختر صورة للفئة
+
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setNewImage(e.target.files[0])
+                  setPreview(URL.createObjectURL(e.target.files[0]))
+                }
+              }}
+            />
+          </label>
+
+          {newImage && (
+            <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+              تم اختيار: {newImage.name}
+            </p>
+          )}
+
+        </div>
+
+        {preview && (
+          <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-lg group transition-all duration-300">
+
+            <img
+              src={preview}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span className="text-white text-sm font-medium">
+                معاينة الصورة
+              </span>
+            </div>
+
+          </div>
+        )}
 
             <div className="flex justify-end gap-3">
               <button
