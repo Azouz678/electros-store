@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Pencil, Trash2, ImagePlus, Power } from "lucide-react"
+import { Pencil, Trash2, ImagePlus, Power, CheckCircle } from "lucide-react"
 
 type Category = {
   id: string
@@ -28,46 +28,38 @@ export default function ManageCategories() {
   const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [updateState, setUpdateState] = useState<"idle" | "loading" | "success">("idle")
 
   useEffect(() => {
-    fetchData()
     fetchCategories()
   }, [search])
 
-  async function fetchData() {
-    const { data } = await supabase
+  async function fetchCategories() {
+    let query = supabase
       .from("categories")
       .select("*")
-      .ilike("name", `%${search}%`)
       .order("created_at", { ascending: false })
 
+    if (search.trim() !== "") {
+      query = query.ilike("name", `%${search}%`)
+    }
+
+    const { data } = await query
     setCategories(data || [])
   }
 
- async function fetchCategories() {
-  let query = supabase
-    .from("categories")
-    .select("*")
-    .order("created_at", { ascending: false })
-
-  if (search.trim() !== "") {
-    query = query.ilike("name", `%${search}%`)
+  function showSuccess(msg: string) {
+    setSuccessMessage(msg)
+    setTimeout(() => setSuccessMessage(null), 2500)
   }
 
-  const { data } = await query
-  setCategories(data || [])
-}
-
-  // =============================
-  // حذف
-  // =============================
-
-  async function deleteCategory(id: string) {
+  async function deleteCategory(cat: Category) {
 
     const { count } = await supabase
       .from("products")
       .select("*", { count: "exact", head: true })
-      .eq("category_id", id)
+      .eq("category_id", cat.id)
 
     if ((count || 0) > 0) {
       alert("لا يمكن حذف الفئة لأنها مرتبطة بمنتجات")
@@ -76,13 +68,16 @@ export default function ManageCategories() {
 
     if (!confirm("هل أنت متأكد من الحذف؟")) return
 
-    await supabase.from("categories").delete().eq("id", id)
+    if (cat.image) {
+      const fileName = cat.image.split("/").pop()
+      if (fileName) {
+        await supabase.storage.from("categories").remove([fileName])
+      }
+    }
+
+    await supabase.from("categories").delete().eq("id", cat.id)
     fetchCategories()
   }
-
-  // =============================
-  // تفعيل / إيقاف
-  // =============================
 
   async function toggleActive(cat: Category) {
     await supabase
@@ -93,33 +88,41 @@ export default function ManageCategories() {
     fetchCategories()
   }
 
-  // =============================
-  // تحديث
-  // =============================
-
   async function updateCategory() {
 
     if (!editing) return
 
+    setUpdateState("loading")
+
     const trimmed = newName.trim()
+    if (!trimmed) {
+      setUpdateState("idle")
+      return alert("اسم الفئة مطلوب")
+    }
 
-    if (!trimmed) return alert("اسم الفئة مطلوب")
+    const slug = generateSlug(trimmed)
 
-    // منع التكرار
     const { data: existing } = await supabase
       .from("categories")
       .select("*")
-      .eq("slug", generateSlug(trimmed))
+      .eq("slug", slug)
       .neq("id", editing.id)
 
     if (existing && existing.length > 0) {
-      alert("فئة بنفس الاسم موجودة")
-      return
+      setUpdateState("idle")
+      return alert("فئة بنفس الاسم موجودة")
     }
 
     let imageUrl = editing.image
 
     if (newImage) {
+
+      if (editing.image) {
+        const oldFile = editing.image.split("/").pop()
+        if (oldFile) {
+          await supabase.storage.from("categories").remove([oldFile])
+        }
+      }
 
       const fileName = `cat-${Date.now()}-${newImage.name}`
 
@@ -127,7 +130,10 @@ export default function ManageCategories() {
         .from("categories")
         .upload(fileName, newImage)
 
-      if (error) return alert("فشل رفع الصورة")
+      if (error) {
+        setUpdateState("idle")
+        return alert("فشل رفع الصورة")
+      }
 
       const { data } = supabase.storage
         .from("categories")
@@ -140,48 +146,49 @@ export default function ManageCategories() {
       .from("categories")
       .update({
         name: trimmed,
-        slug: generateSlug(trimmed),
+        slug,
         image: imageUrl
       })
       .eq("id", editing.id)
 
-    setEditing(null)
-    setNewImage(null)
-    setPreview(null)
-    fetchData()
+    setUpdateState("success")
+    showSuccess("تم تحديث الفئة بنجاح ✅")
+
+    setTimeout(() => {
+      setEditing(null)
+      setNewImage(null)
+      setPreview(null)
+      setUpdateState("idle")
+      fetchCategories()
+    }, 1200)
   }
 
   return (
     <div className="space-y-6">
 
-      <h1 className="text-2xl font-bold">
-        إدارة الفئات
-      </h1>
+      {successMessage && (
+        <div className="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-xl shadow-xl z-50 flex items-center gap-2 animate-bounce">
+          <CheckCircle size={18} />
+          {successMessage}
+        </div>
+      )}
 
-         <div className="mb-6 relative">
-  <input
-    type="text"
-    placeholder="ابحث عن فئة..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="w-full p-3 pl-10 rounded-xl
-    bg-white dark:bg-[#1E293B]
-    border border-gray-200 dark:border-[#334155]
-    focus:ring-2 focus:ring-[#C59B3C]
-    outline-none transition-all duration-300"
-  />
+      <h1 className="text-2xl font-bold">إدارة الفئات</h1>
 
-  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C59B3C]">
-    🔍
-  </span>
-</div>
+      <input
+        type="text"
+        placeholder="ابحث عن فئة..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full p-3 rounded-xl bg-white dark:bg-[#1E293B] border focus:ring-2 focus:ring-[#C59B3C] outline-none transition"
+      />
 
       <div className="space-y-4">
 
         {categories.map(cat => (
           <div
             key={cat.id}
-            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex flex-col md:flex-row md:justify-between md:items-center gap-4"
+            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex justify-between items-center transition hover:shadow-xl hover:scale-[1.01]"
           >
 
             <div className="flex items-center gap-4">
@@ -194,14 +201,7 @@ export default function ManageCategories() {
               )}
 
               <div>
-                <p className="font-semibold text-lg">
-                  {cat.name}
-                </p>
-
-                {/* <p className="text-xs text-gray-500">
-                  slug: {cat.slug}
-                </p> */}
-
+                <p className="font-semibold text-lg">{cat.name}</p>
                 <p className={`text-xs ${cat.is_active ? "text-green-600" : "text-red-500"}`}>
                   {cat.is_active ? "مفعلة" : "موقوفة"}
                 </p>
@@ -212,7 +212,7 @@ export default function ManageCategories() {
 
               <button
                 onClick={() => toggleActive(cat)}
-                className="bg-yellow-500 text-white px-3 py-2 rounded-xl"
+                className="bg-yellow-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
               >
                 <Power size={16} />
               </button>
@@ -221,15 +221,16 @@ export default function ManageCategories() {
                 onClick={() => {
                   setEditing(cat)
                   setNewName(cat.name)
+                  setPreview(cat.image)
                 }}
-                className="bg-blue-500 text-white px-3 py-2 rounded-xl"
+                className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
               >
                 <Pencil size={16} />
               </button>
 
               <button
-                onClick={() => deleteCategory(cat.id)}
-                className="bg-red-500 text-white px-3 py-2 rounded-xl"
+                onClick={() => deleteCategory(cat)}
+                className="bg-red-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
               >
                 <Trash2 size={16} />
               </button>
@@ -241,16 +242,12 @@ export default function ManageCategories() {
 
       </div>
 
-      {/* ===== Modal ===== */}
-
       {editing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
 
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl w-96 space-y-4">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl w-96 space-y-4 shadow-2xl animate-fadeIn">
 
-            <h2 className="text-xl font-bold">
-              تعديل الفئة
-            </h2>
+            <h2 className="text-xl font-bold">تعديل الفئة</h2>
 
             <input
               value={newName}
@@ -258,58 +255,33 @@ export default function ManageCategories() {
               className="w-full border p-3 rounded-xl"
             />
 
-      <div className="space-y-3">
+            <label className="relative flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-[#C59B3C]/60 text-[#C59B3C] hover:bg-[#C59B3C]/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <ImagePlus size={18} />
+              اختر صورة للفئة
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setNewImage(e.target.files[0])
+                    setPreview(URL.createObjectURL(e.target.files[0]))
+                  }
+                }}
+              />
+            </label>
 
-          <label className="relative flex items-center justify-center gap-2
-            w-full py-3 rounded-xl
-            border-2 border-dashed border-[#C59B3C]/60
-            text-[#C59B3C]
-            hover:bg-[#C59B3C]/10
-            hover:scale-[1.02]
-            transition-all duration-300 cursor-pointer">
-
-            <ImagePlus size={18} />
-            اختر صورة للفئة
-
-            <input
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files) {
-                  setNewImage(e.target.files[0])
-                  setPreview(URL.createObjectURL(e.target.files[0]))
-                }
-              }}
-            />
-          </label>
-
-          {newImage && (
-            <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              تم اختيار: {newImage.name}
-            </p>
-          )}
-
-        </div>
-
-        {preview && (
-          <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-lg group transition-all duration-300">
-
-            <img
-              src={preview}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                معاينة الصورة
-              </span>
-            </div>
-
-          </div>
-        )}
+            {preview && (
+              <div className="relative w-full h-44 rounded-2xl overflow-hidden shadow-lg">
+                <img
+                  src={preview}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
 
             <div className="flex justify-end gap-3">
+
               <button
                 onClick={() => setEditing(null)}
                 className="border px-4 py-2 rounded-xl"
@@ -319,10 +291,24 @@ export default function ManageCategories() {
 
               <button
                 onClick={updateCategory}
-                className="bg-green-600 text-white px-4 py-2 rounded-xl"
+                disabled={updateState === "loading"}
+                className={`
+                  px-4 py-2 rounded-xl text-white font-semibold transition-all duration-300
+                  ${updateState === "idle" && "bg-green-600 hover:scale-105"}
+                  ${updateState === "loading" && "bg-gray-400 cursor-not-allowed"}
+                  ${updateState === "success" && "bg-green-700 animate-pulse"}
+                `}
               >
-                حفظ
+                {updateState === "idle" && "حفظ"}
+                {updateState === "loading" && (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    جاري الحفظ...
+                  </span>
+                )}
+                {updateState === "success" && "✔ تم بنجاح"}
               </button>
+
             </div>
 
           </div>
