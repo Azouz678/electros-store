@@ -96,26 +96,30 @@ export default function LoginPage() {
         <div className="space-y-2">
           <label className="text-sm text-gray-600 dark:text-gray-400">
             البريد الإلكتروني
+            <br />
           </label>
 
-          <input
-            type="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="admin@email.com"
-            className="w-full border border-gray-300 dark:border-gray-600
-              bg-white dark:bg-[#1E293B]
-              p-3 rounded-xl
-              focus:ring-2 focus:ring-[#C59B3C]
-              outline-none transition-all duration-300"
-          />
+        <input
+          type="email"
+          autoComplete="email"
+          autoCapitalize="none"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="admin@email.com"
+          className="w-full border border-gray-300 dark:border-gray-600
+            bg-white dark:bg-[#1E293B]
+            text-gray-900 dark:text-white
+            placeholder:text-gray-400 dark:placeholder:text-gray-500
+            p-3 rounded-xl
+            focus:ring-2 focus:ring-[#C59B3C]
+            outline-none transition-all duration-300"
+        />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm text-gray-600 dark:text-gray-400">
             كلمة المرور
+            <br />
           </label>
 
           <div className="relative">
@@ -126,6 +130,8 @@ export default function LoginPage() {
               placeholder="••••••••"
               className="w-full border border-gray-300 dark:border-gray-600
                 bg-white dark:bg-[#1E293B]
+                text-gray-900 dark:text-white
+                placeholder:text-gray-400 dark:placeholder:text-gray-500
                 p-3 pr-16 rounded-xl
                 focus:ring-2 focus:ring-[#C59B3C]
                 outline-none transition-all duration-300"
