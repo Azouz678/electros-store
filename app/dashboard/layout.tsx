@@ -90,40 +90,70 @@ export default function DashboardLayout({
     : baseMenu
 
   return (
-    <div className="flex min-h-screen 
+    <div className="relative flex min-h-screen 
       bg-[#F3F4F6] 
-      dark:bg-[#0F172A] 
+      dark:bg-[#0B1220] 
       text-[#1E293B] 
       dark:text-white 
-      transition-colors duration-300">
+      transition-colors duration-500">
+
+      {/* Overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-md z-40 lg:hidden transition-opacity duration-300"
+          onClick={() => setOpen(false)}
+        />
+      )}
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 
-        bg-white dark:bg-[#1E293B] 
-        border-b border-gray-200 dark:border-[#334155]
-        p-4 flex justify-between items-center z-40">
-        <button onClick={() => setOpen(true)}>
-          <Menu size={28} />
+        bg-white/90 dark:bg-[#111827]/90 
+        backdrop-blur-xl
+        border-b border-gray-200 dark:border-gray-700
+        p-4 flex justify-between items-center z-50 shadow-sm">
+
+        <button
+          onClick={() => setOpen(true)}
+          className="hover:scale-110 transition-transform duration-200"
+        >
+          <Menu size={26} />
         </button>
-        <h2 className="font-bold text-lg">لوحة التحكم</h2>
+
+        <h2 className="font-bold text-lg tracking-wide">لوحة التحكم</h2>
+
+        <div />
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static z-50 top-0 left-0 h-full w-64 
-        bg-white 
-        dark:bg-[#1E293B] 
-        border-r border-gray-200 dark:border-[#334155]
-        shadow-xl p-6 transition-transform duration-300
-        ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64
+          bg-white/80 dark:bg-[#111827]/90
+          backdrop-blur-2xl
+          border-r border-gray-200 dark:border-gray-700
+          shadow-2xl
+          p-6
+          transform transition-all duration-500 ease-[cubic-bezier(.25,.8,.25,1)]
+          z-50
+          ${open ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}
+          lg:translate-x-0 lg:opacity-100
+        `}
+      >
 
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl font-bold">لوحة التحكم</h2>
-          <button className="lg:hidden" onClick={() => setOpen(false)}>
+        <div className="flex justify-between items-center mb-10">
+          <h2 className="text-xl font-bold tracking-wide bg-gradient-to-r from-[#C59B3C] to-amber-500 bg-clip-text text-transparent">
+            لوحة التحكم
+          </h2>
+
+          <button
+            className="lg:hidden hover:rotate-90 transition-transform duration-300"
+            onClick={() => setOpen(false)}
+          >
             <X />
           </button>
         </div>
 
-    <nav className="space-y-3">
+        <nav className="space-y-3">
 
           {menu.map(item => {
 
@@ -136,33 +166,32 @@ export default function DashboardLayout({
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={`
-            group relative flex items-center justify-between
-            px-4 py-3 pl-6 rounded-xl
-            transition-all duration-300 ease-out
-            ${active
-              ? "bg-[#C59B3C]/10 dark:bg-[#C59B3C]/20 scale-[1.02]"
-              : "hover:bg-[#C59B3C]/10 dark:hover:bg-[#C59B3C]/20 hover:scale-[1.02]"
-            }
-            `}
+                  group relative flex items-center justify-between
+                  px-4 py-3 rounded-xl
+                  transition-all duration-300
+                  ${active
+                    ? "bg-gradient-to-r from-[#C59B3C]/20 to-transparent scale-[1.03]"
+                    : "hover:bg-[#C59B3C]/10 hover:scale-[1.02]"
+                  }
+                `}
               >
 
-                {/* Left Glow Effect */}
-                  {active && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 
-          w-1 h-6 bg-[#C59B3C] rounded-r-full 
-          shadow-md shadow-[#C59B3C]/50
-          animate-pulse" />
-        )}
+                {/* Left Active Line */}
+                {active && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 
+                    w-1 h-7 bg-[#C59B3C] rounded-r-full 
+                    shadow-lg shadow-[#C59B3C]/60 animate-pulse" />
+                )}
 
-                <div className="flex items-center gap-3 relative z-10">
+                <div className="flex items-center gap-3">
 
                   <Icon
                     size={20}
                     className={`
                       transition-all duration-300
                       ${active
-                        ? "text-white"
-                        : "text-[#C59B3C] group-hover:scale-110 group-hover:text-[#C59B3C]"
+                        ? "text-[#C59B3C] scale-110"
+                        : "text-gray-500 dark:text-gray-400 group-hover:text-[#C59B3C] group-hover:scale-110"
                       }
                     `}
                   />
@@ -176,11 +205,10 @@ export default function DashboardLayout({
                 {item.badge !== undefined && (
                   <span
                     className={`
-                      relative z-10 text-xs px-2 py-1 rounded-full
-                      transition-all duration-300
+                      text-xs px-2 py-1 rounded-full transition-all duration-300
                       ${active
-                        ? "bg-white text-[#C59B3C]"
-                        : "bg-[#C59B3C] text-white group-hover:shadow-md group-hover:shadow-[#C59B3C]/40"
+                        ? "bg-[#C59B3C] text-white shadow-md"
+                        : "bg-[#C59B3C]/90 text-white group-hover:shadow-lg"
                       }
                     `}
                   >
@@ -197,10 +225,11 @@ export default function DashboardLayout({
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="mt-6 w-full flex items-center justify-center gap-2 
-          bg-[#C59B3C] text-white 
-          py-2 rounded-xl shadow-md 
-          hover:scale-105 transition-all duration-200"
+          className="mt-8 w-full flex items-center justify-center gap-2 
+          bg-gradient-to-r from-[#C59B3C] to-amber-500 
+          text-white py-2 rounded-xl shadow-lg 
+          hover:scale-105 hover:shadow-xl
+          transition-all duration-300"
         >
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
@@ -212,18 +241,19 @@ export default function DashboardLayout({
             await supabase.auth.signOut()
             router.push("/login")
           }}
-          className="mt-6 w-full 
-          bg-[#1E293B] 
-          dark:bg-[#C59B3C] 
+          className="mt-5 w-full 
+          bg-gray-800 dark:bg-gray-700
           text-white py-2 rounded-xl 
-          hover:opacity-90 transition"
+          hover:bg-red-500 hover:scale-105
+          transition-all duration-300 shadow-md"
         >
           تسجيل خروج
         </button>
 
       </aside>
 
-      <main className="flex-1 p-6 lg:p-10 mt-16 lg:mt-0">
+      {/* Content */}
+      <main className="flex-1 p-6 lg:p-10 mt-16 lg:mt-0 transition-all duration-500">
         {children}
       </main>
 
