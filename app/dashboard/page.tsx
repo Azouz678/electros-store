@@ -107,7 +107,8 @@ export default function Dashboard() {
   // ===============================
 
   async function addCategory() {
-
+    setLoading(true)
+    
     if (!categoryName) return alert("اكتب اسم الفئة")
 
     const slug = generateSlug(categoryName)
@@ -118,7 +119,12 @@ export default function Dashboard() {
       .eq("slug", slug)
       .single()
 
-    if (existing) return alert("الفئة موجودة مسبقًا")
+
+    if (existing) {
+      setLoading(false)
+      return alert("الفئة موجودة مسبقًا")
+    }
+
 
     let imageUrl = null
 
@@ -147,9 +153,11 @@ export default function Dashboard() {
       }
     ])
 
+    setLoading(false)
     setCategoryName("")
     setCategoryImage(null)
     setCategoryPreview(null)
+        
 
     fetchCategories()
 
