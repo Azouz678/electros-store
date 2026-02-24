@@ -18,6 +18,14 @@ function generateSlug(text: string) {
     .replace(/\s+/g, "-")
 }
 
+function formatPrice(value: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0
+  }).format(value)
+}
+
 export default function Dashboard() {
 
   const router = useRouter()
@@ -29,7 +37,8 @@ export default function Dashboard() {
   const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
 
   const [name, setName] = useState("")
-  const [price, setPrice] = useState("")
+  const [price, setPrice] = useState<number | "">("")
+  const [currency, setCurrency] = useState<"YER" | "SAR" | "USD">("YER")
   const [description, setDescription] = useState("")
   const [categoryId, setCategoryId] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -65,71 +74,9 @@ export default function Dashboard() {
     setCategories(data || [])
   }
 
-  // ===============================
-  // إضافة فئة
-  // ===============================
-
-  async function addCategory() {
-
-    if (!categoryName) return alert("اكتب اسم الفئة")
-
-    setCategoryBtn("loading")
-
-    const slug = generateSlug(categoryName)
-
-    const { data: existing } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", slug)
-      .single()
-
-    if (existing) {
-      setCategoryBtn("idle")
-      return alert("الفئة موجودة مسبقًا")
-    }
-
-    let imageUrl = null
-
-    if (categoryImage) {
-      const fileName = `cat-${Date.now()}.jpg`
-      const { error } = await supabase.storage
-        .from("categories")
-        .upload(fileName, categoryImage)
-
-      if (error) {
-        setCategoryBtn("idle")
-        return alert("فشل رفع صورة الفئة")
-      }
-
-      const { data } = supabase.storage
-        .from("categories")
-        .getPublicUrl(fileName)
-
-      imageUrl = data.publicUrl
-    }
-
-    await supabase.from("categories").insert([
-      { name: categoryName, slug, image: imageUrl, is_active: true }
-    ])
-
-    setCategoryName("")
-    setCategoryImage(null)
-    setCategoryPreview(null)
-    fetchCategories()
-
-    setCategoryBtn("success")
-    showSuccess("تم إضافة الفئة بنجاح ✅")
-
-    setTimeout(() => setCategoryBtn("idle"), 1500)
-  }
-
-  // ===============================
-  // إضافة منتج
-  // ===============================
-
   async function addProduct() {
 
-    if (!imageFile || !categoryId || !name || !price)
+    if (!imageFile || !categoryId || !name || price === "")
       return alert("أكمل جميع البيانات")
 
     setProductBtn("loading")
@@ -166,6 +113,7 @@ export default function Dashboard() {
       {
         name,
         price,
+        currency,
         description,
         category_id: categoryId,
         image: data.publicUrl,
@@ -176,6 +124,7 @@ export default function Dashboard() {
 
     setName("")
     setPrice("")
+    setCurrency("YER")
     setDescription("")
     setCategoryId("")
     setProductPreview(null)
@@ -198,51 +147,10 @@ export default function Dashboard() {
       )}
 
       <h1 className="text-2xl font-bold mb-8">
-        إضافة منتج أو فئة
+        إضافة منتج
       </h1>
 
-      {/* ================= إضافة فئة ================= */}
-
-      <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl space-y-4 mb-10">
-
-        <h2 className="text-lg font-semibold">إضافة فئة</h2>
-
-        <input
-          value={categoryName}
-          placeholder="اسم الفئة"
-          onChange={e => setCategoryName(e.target.value)}
-          className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-        />
-
-        <button
-          onClick={addCategory}
-          disabled={categoryBtn === "loading"}
-          className={`
-            w-full py-3 rounded-xl font-semibold text-white transition-all duration-300
-            ${categoryBtn === "idle" && "bg-purple-600 hover:scale-105"}
-            ${categoryBtn === "loading" && "bg-gray-400 cursor-not-allowed"}
-            ${categoryBtn === "success" && "bg-green-600 animate-pulse"}
-          `}
-        >
-          {categoryBtn === "idle" && "إضافة الفئة"}
-
-          {categoryBtn === "loading" && (
-            <div className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              جاري الإضافة...
-            </div>
-          )}
-
-          {categoryBtn === "success" && "✔ تم بنجاح"}
-        </button>
-
-      </div>
-
-      {/* ================= إضافة منتج ================= */}
-
       <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-
-        <h2 className="text-lg font-semibold">إضافة منتج</h2>
 
         <input
           value={name}
@@ -251,12 +159,41 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-        <input
-          value={price}
-          placeholder="السعر"
-          onChange={e => setPrice(e.target.value)}
-          className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-        />
+        {/* ===== السعر المعدل ===== */}
+
+        <div className="space-y-2">
+
+          <div className="flex gap-3">
+
+            <input
+              type="number"
+              inputMode="numeric"
+              min="0"
+              value={price}
+              placeholder="السعر"
+              onChange={e => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
+              className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700 text-lg font-semibold"
+            />
+
+            <select
+              value={currency}
+              onChange={e => setCurrency(e.target.value as any)}
+              className="border p-3 rounded-xl bg-gray-50 dark:bg-slate-700 font-medium"
+            >
+              <option value="YER">🇾🇪 YER</option>
+              <option value="SAR">🇸🇦 SAR</option>
+              <option value="USD">🇺🇸 USD</option>
+            </select>
+
+          </div>
+
+          {price !== "" && (
+            <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-xl text-green-700 dark:text-green-400 font-bold text-lg">
+              {formatPrice(price as number, currency)}
+            </div>
+          )}
+
+        </div>
 
         <select
           value={categoryId}
