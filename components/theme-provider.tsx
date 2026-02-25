@@ -60,33 +60,20 @@
 
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 
-export function ClientThemeProvider({
+export function ThemeProvider({
   children,
+  storageKey,
+  defaultTheme = "light",
 }: {
   children: React.ReactNode
+  storageKey: string
+  defaultTheme?: string
 }) {
   return (
     <NextThemesProvider
       attribute="class"
-      storageKey="client-theme"
-      defaultTheme="light"
-      disableTransitionOnChange
-    >
-      {children}
-    </NextThemesProvider>
-  )
-}
-
-export function AdminThemeProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <NextThemesProvider
-      attribute="class"
-      storageKey="admin-theme"
-      defaultTheme="dark"
+      storageKey={storageKey}
+      defaultTheme={defaultTheme}
       disableTransitionOnChange
     >
       {children}

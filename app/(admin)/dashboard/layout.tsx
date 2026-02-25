@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { AdminThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Moon, Sun } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import {
@@ -93,7 +93,7 @@ export default function DashboardLayout({
 
   return (
 
-    <AdminThemeProvider>
+    <ThemeProvider storageKey="admin-theme" defaultTheme="dark">
     <div className="relative flex min-h-screen 
       bg-[#F3F4F6] 
       dark:bg-[#0B1220] 
@@ -264,6 +264,6 @@ export default function DashboardLayout({
           
     </div>
     
-    </AdminThemeProvider>
+    </ThemeProvider>
   )
 }
