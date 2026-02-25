@@ -1,17 +1,20 @@
-import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider"
+import "./globals.css"
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className="min-h-screen">
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
 
 
