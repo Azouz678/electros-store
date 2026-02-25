@@ -1,4 +1,3 @@
-import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -12,11 +11,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
-      <body>
+      <body className="min-h-screen">
         {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
-         {/* <ThemeProvider> */}
           {children}
-        {/* </ThemeProvider> */}
+     
       </body>
     </html>
   );
