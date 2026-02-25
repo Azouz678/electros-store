@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,18 +9,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className="min-h-screen">
-        {/* <ThemeProvider attribute="class" defaultTheme="system" enableSystem> */}
+        <ThemeProvider storageKey="root-theme" defaultTheme="light">
           {children}
-     
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-
 
 // export default function RootLayout({
 //   children,
