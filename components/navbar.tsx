@@ -1,6 +1,5 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
-import { ThemeProvider } from "@/components/theme-provider";
 
 
 export function Navbar() {

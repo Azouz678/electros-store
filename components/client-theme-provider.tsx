@@ -1,0 +1,15 @@
+"use client";
+
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+export function ClientThemeProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      storageKey="client-theme"
+      defaultTheme="light"
+    >
+      {children}
+    </NextThemesProvider>
+  );
+}

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* tell Tailwind what triggers dark mode */
-@variant dark (&:where(.dark, .dark *));
+/* @variant dark (&:where(.dark, .dark *)); */
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

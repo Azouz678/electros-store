@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "next-themes"
+import { AdminThemeProvider } from "@/components/theme-provider"
 import { Moon, Sun } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import {
@@ -16,6 +17,7 @@ import {
   Shield
 } from "lucide-react"
 
+
 export default function DashboardLayout({
   children,
 }: {
@@ -24,7 +26,7 @@ export default function DashboardLayout({
 
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, toggleTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
 
   const [open, setOpen] = useState(false)
   const [productCount, setProductCount] = useState(0)
@@ -90,12 +92,15 @@ export default function DashboardLayout({
     : baseMenu
 
   return (
+
+    <AdminThemeProvider>
     <div className="relative flex min-h-screen 
       bg-[#F3F4F6] 
       dark:bg-[#0B1220] 
       text-[#1E293B] 
       dark:text-white 
       transition-colors duration-500">
+
 
       {/* Overlay */}
       {open && (
@@ -222,9 +227,9 @@ export default function DashboardLayout({
 
         </nav>
 
-        {/* Theme Toggle */}
+        {/* set Theme */}
         <button
-          onClick={toggleTheme}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="mt-8 w-full flex items-center justify-center gap-2 
           bg-gradient-to-r from-[#C59B3C] to-amber-500 
           text-white py-2 rounded-xl shadow-lg 
@@ -256,7 +261,9 @@ export default function DashboardLayout({
       <main className="flex-1 p-6 lg:p-10 mt-16 lg:mt-0 transition-all duration-500">
         {children}
       </main>
-
+          
     </div>
+    
+    </AdminThemeProvider>
   )
 }
