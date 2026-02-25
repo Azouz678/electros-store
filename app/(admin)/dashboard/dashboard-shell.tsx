@@ -94,14 +94,13 @@ export default function DashboardLayout({
   return (
 
     // <ThemeProvider storageKey="admin-theme" defaultTheme="dark">
-    // <div className="relative flex min-h-screen 
-    //   bg-[#F3F4F6] 
-    //   dark:bg-[#0B1220] 
-    //   text-[#1E293B] 
-    //   dark:text-white 
-    //   transition-colors duration-500">
-<div className="min-h-screen bg-red-500 dark:bg-green-500">
-  اختبار
+    <div className="relative flex min-h-screen 
+      bg-[#F3F4F6] 
+      dark:bg-[#0B1220] 
+      text-[#1E293B] 
+      dark:text-white 
+      transition-colors duration-500">
+
 
       {/* Overlay */}
       {open && (

@@ -74,7 +74,8 @@ export function ThemeProvider({
       attribute="class"
       storageKey={storageKey}
       defaultTheme={defaultTheme}
-      disableTransitionOnChange
+      // disableTransitionOnChange
+      enableSystem={false}
     >
       {children}
     </NextThemesProvider>
