@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/theme-provider"
+import { ClientThemeProvider } from "@/components/client-theme-provider"
 
 export default function ClientLayout({
   children,
@@ -6,10 +6,10 @@ export default function ClientLayout({
   children: React.ReactNode
 }) {
   return (
-    // <ThemeProvider storageKey="client-theme" defaultTheme="light">
+    <ClientThemeProvider>
       <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-500">
         {children}
       </div>
-    // </ThemeProvider>
+    </ClientThemeProvider>
   )
 }

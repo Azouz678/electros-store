@@ -1,4 +1,4 @@
-// import { ThemeProvider } from "@/components/theme-provider"
+import { AdminThemeProvider } from "@/components/admin-theme-provider"
 import DashboardShell from "./dashboard-shell"
 
 export default function DashboardLayout({
@@ -7,13 +7,10 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    // <ThemeProvider
-    //   defaultTheme="dark"
-    //   storageKey="admin-theme"
-    // >
+    <AdminThemeProvider>
       <DashboardShell>
         {children}
       </DashboardShell>
-    // </ThemeProvider>
+    </AdminThemeProvider>
   )
 } 

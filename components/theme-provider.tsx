@@ -1,12 +1,30 @@
 "use client"
 
 import { ThemeProvider as NextThemesProvider } from "next-themes"
+import { useEffect } from "react"
 
 export function ThemeProvider({
   children,
 }: {
   children: React.ReactNode
 }) {
+
+  // sync theme across tabs: update document class when localStorage changes
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key !== "theme") return
+      const v = e.newValue
+      if (!v) return
+      if (v === "dark") document.documentElement.classList.add("dark")
+      else document.documentElement.classList.remove("dark")
+    }
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", onStorage)
+      return () => window.removeEventListener("storage", onStorage)
+    }
+  }, [])
+
   return (
     <NextThemesProvider
       attribute="class"

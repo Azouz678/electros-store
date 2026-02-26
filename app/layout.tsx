@@ -1,4 +1,5 @@
-import { ThemeProvider } from "@/components/theme-provider"
+// Root should not provide a global theme when client/admin need separate themes.
+// Theme providers are applied per-area in (client) and (admin) layouts.
 import "./globals.css"
 
 export default function RootLayout({
@@ -9,9 +10,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <body className="min-h-screen">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   )
