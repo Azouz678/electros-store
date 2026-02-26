@@ -225,6 +225,7 @@ export default function DashboardLayout({
 
         {/* set Theme */}
         <button
+          aria-label="Toggle theme"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="mt-8 w-full flex items-center justify-center gap-2 
           bg-gradient-to-r from-[#C59B3C] to-amber-500 
