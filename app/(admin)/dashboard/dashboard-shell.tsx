@@ -226,7 +226,7 @@ export default function DashboardLayout({
         {/* set Theme */}
 
         {/* Theme Buttons */}
-    <div className="mt-8 grid grid-cols-2 gap-2">
+    {/* <div className="mt-8 grid grid-cols-2 gap-2"> */}
   {/* Theme Toggle - same size as Logout */}
           <button
             type="button"
@@ -243,7 +243,7 @@ export default function DashboardLayout({
               {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
             </span>
           </button>
-      </div>
+      {/* </div> */}
         {/* <button
           aria-label="Toggle theme"
           onClick={() => setTheme("dark")}
