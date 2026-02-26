@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "next-themes"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -17,7 +16,7 @@ export default function DashboardLayout({
 
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
+  const { theme, toggleTheme } = useAdminTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -226,7 +225,7 @@ export default function DashboardLayout({
         {/* set Theme */}
         <button
           aria-label="Toggle theme"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => toggleTheme()}
           className="mt-8 w-full flex items-center justify-center gap-2 
           bg-gradient-to-r from-[#C59B3C] to-amber-500 
           text-white py-2 rounded-xl shadow-lg 

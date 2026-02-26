@@ -1,18 +1,45 @@
 "use client"
 
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import * as React from "react"
+import React, { createContext, useContext, useEffect, useState } from "react"
+
+type Theme = "light" | "dark"
+
+const AdminThemeContext = createContext<{
+	theme: Theme
+	setTheme: (t: Theme) => void
+	toggleTheme: () => void
+} | null>(null)
 
 export function AdminThemeProvider({ children }: { children: React.ReactNode }) {
+	const [theme, setThemeState] = useState<Theme>("dark")
+
+	useEffect(() => {
+		const saved = typeof window !== "undefined" ? (localStorage.getItem("admin-theme") as Theme | null) : null
+		if (saved) setThemeState(saved)
+	}, [])
+
+	useEffect(() => {
+		if (typeof window === "undefined") return
+		localStorage.setItem("admin-theme", theme)
+	}, [theme])
+
+	function setTheme(t: Theme) {
+		setThemeState(t)
+	}
+
+	function toggleTheme() {
+		setThemeState(prev => (prev === "dark" ? "light" : "dark"))
+	}
+
 	return (
-		<NextThemesProvider
-			attribute="class"
-			storageKey="admin-theme"
-			defaultTheme="dark"
-			enableSystem={false}
-			disableTransitionOnChange
-		>
-			{children}
-		</NextThemesProvider>
+		<AdminThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+			<div className={theme === "dark" ? "dark" : ""}>{children}</div>
+		</AdminThemeContext.Provider>
 	)
+}
+
+export function useAdminTheme() {
+	const ctx = useContext(AdminThemeContext)
+	if (!ctx) throw new Error("useAdminTheme must be used within AdminThemeProvider")
+	return ctx
 }
