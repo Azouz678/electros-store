@@ -1,5 +1,6 @@
 "use client"
 
+import { useAdminTheme } from "@/components/admin-theme-provider"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
