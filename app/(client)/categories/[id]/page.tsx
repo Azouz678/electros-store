@@ -29,7 +29,7 @@ export default async function CategoryPage(
     .eq("is_active", true)
 
   return (
-    <SiteShell>
+    <>
       <h1 className="mb-8 text-3xl font-bold">
         {category.name}
       </h1>
@@ -81,6 +81,6 @@ export default async function CategoryPage(
         })}
 
       </div>
-    </SiteShell>
+    </>
   )
 }
