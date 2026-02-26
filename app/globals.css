@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ✅ Tailwind v4: dark mode by class (.dark) */
+/* ✅ Enable dark: utilities when .dark exists in the DOM tree */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Custom Scrollbar */
