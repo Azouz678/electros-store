@@ -1,21 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useTheme } from "next-themes"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useTheme } from "next-themes"
+import { useEffect, useState } from "react"
 // import { ThemeProvider } from "@/components/theme-provider"
-import { Moon, Sun } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import {
-  LayoutDashboard,
-  PlusCircle,
-  Boxes,
-  Tags,
-  Menu,
-  X,
-  Shield
-} from "lucide-react"
+import { Boxes, LayoutDashboard, Menu, Moon, PlusCircle, Shield, Sun, Tags, X } from "lucide-react"
 
 
 export default function DashboardLayout({
@@ -27,6 +18,11 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const [open, setOpen] = useState(false)
   const [productCount, setProductCount] = useState(0)
@@ -236,8 +232,8 @@ export default function DashboardLayout({
           hover:scale-105 hover:shadow-xl
           transition-all duration-300"
         >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+          {mounted ? (theme === "dark" ? <Sun size={18} /> : <Moon size={18} />) : <Moon size={18} />}
+          {mounted ? (theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي") : "الوضع الليلي"}
         </button>
 
         {/* Logout */}

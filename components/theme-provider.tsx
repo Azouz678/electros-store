@@ -10,6 +10,7 @@ export function ThemeProvider({
   return (
     <NextThemesProvider
       attribute="class"
+      storageKey="theme"
       defaultTheme="light"
       enableSystem={false}
       disableTransitionOnChange
