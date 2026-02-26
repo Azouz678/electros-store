@@ -1,10 +1,10 @@
-import { ClientThemeProvider } from "@/components/client-theme-provider"
-import { SiteShell } from "@/components/site-shell"
+import { AdminThemeProvider } from "@/components/admin-theme-provider";
+import DashboardShell from "./dashboard-shell";
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClientThemeProvider>
-      <SiteShell>{children}</SiteShell>
-    </ClientThemeProvider>
-  )
+    <AdminThemeProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </AdminThemeProvider>
+  );
 }

@@ -28,7 +28,7 @@ export default async function ProductPage(
   )}`
 
   return (
-    <SiteShell>
+    <>
       <div className="grid md:grid-cols-2 gap-10">
         <img
           src={product.image}
@@ -53,6 +53,6 @@ export default async function ProductPage(
           </a>
         </div>
       </div>
-    </SiteShell>
+    </>
   )
 }

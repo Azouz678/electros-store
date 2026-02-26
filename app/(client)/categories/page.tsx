@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
   }
 
   return (
-    <SiteShell>
+    <>
       <h1 className="mb-8 text-3xl font-bold">الفئات</h1>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -34,6 +34,6 @@ export default async function CategoriesPage() {
           </Link>
         ))}
       </div>
-    </SiteShell>
+    </>
   )
 }

@@ -17,7 +17,7 @@ export default async function ProductsPage() {
     .select("*")
     .eq("is_active", true)
   return (
-    <SiteShell>
+    <>
       <h1 className="mb-8 text-3xl font-bold">كل المنتجات</h1>
 
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,6 +65,6 @@ export default async function ProductsPage() {
           )
         })}
       </div>
-    </SiteShell>
+    </>
   )
 }
