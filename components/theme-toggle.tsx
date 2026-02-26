@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useClientTheme } from "./client-theme-provider";
+import { useEffect, useState } from "react"
+import { useClientTheme } from "./client-theme-provider"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useClientTheme()
@@ -11,28 +11,16 @@ export function ThemeToggle() {
   if (!mounted) return null
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        onClick={() => setTheme("dark")}
-        className={`rounded-2xl border px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10 ${
-          theme === "dark" ? "font-bold" : ""
-        }`}
-        aria-label="Dark mode"
-      >
-        🌙
-      </button>
-
-      <button
-        type="button"
-        onClick={() => setTheme("light")}
-        className={`rounded-2xl border px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/10 ${
-          theme === "light" ? "font-bold" : ""
-        }`}
-        aria-label="Light mode"
-      >
-        ☀️
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="rounded-2xl border px-3 py-2 text-sm
+        hover:bg-black/5 dark:hover:bg-white/10
+        transition"
+      aria-label="Toggle theme"
+      title={theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+    >
+      {theme === "dark" ? "☀️" : "🌙"}
+    </button>
   )
 }

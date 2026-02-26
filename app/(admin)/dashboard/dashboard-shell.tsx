@@ -226,31 +226,22 @@ export default function DashboardLayout({
         {/* set Theme */}
 
         {/* Theme Buttons */}
-<div className="mt-8 grid grid-cols-2 gap-2">
-  <button
-    type="button"
-    aria-label="Dark mode"
-    onClick={() => setTheme("dark")}
-    className="w-full flex items-center justify-center gap-2
-      bg-gray-900 text-white py-2 rounded-xl shadow-lg
-      hover:scale-105 transition-all duration-300"
-  >
-    <Moon size={18} />
-    الوضع الليلي
-  </button>
-
-  <button
-    type="button"
-    aria-label="Light mode"
-    onClick={() => setTheme("light")}
-    className="w-full flex items-center justify-center gap-2
-      bg-white text-gray-900 py-2 rounded-xl shadow-lg border
-      hover:scale-105 transition-all duration-300"
-  >
-    <Sun size={18} />
-    الوضع الفاتح
-  </button>
-</div>
+    <div className="mt-8 grid grid-cols-2 gap-2">
+        {/* Theme Toggle (one button) */}
+        <button
+          type="button"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="mt-8 w-full flex items-center justify-center gap-2
+            bg-white dark:bg-gray-900
+            text-gray-900 dark:text-white
+            py-2 rounded-xl shadow-lg border dark:border-gray-700
+            hover:scale-105 transition-all duration-300"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+        </button>
+      </div>
         {/* <button
           aria-label="Toggle theme"
           onClick={() => setTheme("dark")}
