@@ -1,5 +1,9 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
 import { useParams } from "next/navigation"
@@ -196,16 +200,16 @@ export default function ProductDetailsPage() {
                   group-hover:shadow-[0_30px_70px_-30px_rgba(0,0,0,.85)]
                   dark:bg-slate-950/55 dark:ring-white/10"
                 >
-<div
-  className="mb-2 inline-flex items-center gap-2 rounded-full px-4 py-1.5
-  text-[13px] md:text-sm font-extrabold tracking-wide
-  bg-slate-100 text-slate-900
-  dark:bg-white/10 dark:text-slate-100
-  ring-1 ring-black/5 dark:ring-white/10"
->
-  <span className="h-2 w-2 rounded-full bg-green-700 dark:bg-green-700" />
-  السعر
-</div>
+                  <div
+                    className="mb-2 inline-flex items-center gap-2 rounded-full px-4 py-1.5
+                    text-[13px] md:text-sm font-extrabold tracking-wide
+                    bg-slate-100 text-slate-900
+                    dark:bg-white/10 dark:text-slate-100
+                    ring-1 ring-black/5 dark:ring-white/10"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-green-700 dark:bg-green-700" />
+                    السعر
+                  </div>
                   <div className="flex items-baseline justify-between gap-4">
                     <span className="text-4xl md:text-5xl font-black tracking-tight leading-none
                       bg-gradient-to-r from-slate-950 via-slate-700 to-slate-950 bg-clip-text text-transparent
