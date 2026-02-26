@@ -33,7 +33,9 @@ export function ClientThemeProvider({ children }: { children: React.ReactNode })
 
 	return (
 		<ClientThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-			<div className={theme === "dark" ? "dark" : ""}>{children}</div>
+			<div id="client-theme-wrapper" data-client-theme={theme} className={theme === "dark" ? "dark" : ""}>
+				{children}
+			</div>
 		</ClientThemeContext.Provider>
 	)
 }
