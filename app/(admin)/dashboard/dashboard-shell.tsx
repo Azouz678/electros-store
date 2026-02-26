@@ -227,20 +227,22 @@ export default function DashboardLayout({
 
         {/* Theme Buttons */}
     <div className="mt-8 grid grid-cols-2 gap-2">
-        {/* Theme Toggle (one button) */}
-        <button
-          type="button"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="mt-8 w-full flex items-center justify-center gap-2
-            bg-white dark:bg-gray-900
-            text-gray-900 dark:text-white
-            py-2 rounded-xl shadow-lg border dark:border-gray-700
-            hover:scale-105 transition-all duration-300"
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
-        </button>
+  {/* Theme Toggle - same size as Logout */}
+          <button
+            type="button"
+            aria-label="Toggle theme"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="mt-5 w-full 
+              bg-gray-800 dark:bg-gray-700
+              text-white py-2 rounded-xl 
+              hover:bg-[#C59B3C] hover:scale-105
+              transition-all duration-300 shadow-md"
+          >
+            <span className="flex items-center justify-center gap-2 leading-none">
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي"}
+            </span>
+          </button>
       </div>
         {/* <button
           aria-label="Toggle theme"
