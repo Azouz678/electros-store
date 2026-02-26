@@ -1,52 +1,61 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
 
 type Theme = "light" | "dark"
 
-const ClientThemeContext = createContext<{
-	theme: Theme
-	setTheme: (t: Theme) => void
-	toggleTheme: () => void
-} | null>(null)
+type Ctx = {
+  theme: Theme
+  setTheme: (t: Theme) => void
+}
+
+const ClientThemeContext = createContext<Ctx | null>(null)
+const STORAGE_KEY = "client-theme"
 
 export function ClientThemeProvider({ children }: { children: React.ReactNode }) {
-	const [theme, setThemeState] = useState<Theme>("light")
+  const [theme, setTheme] = useState<Theme>("light")
 
-	useEffect(() => {
-		const saved = typeof window !== "undefined" ? (localStorage.getItem("client-theme") as Theme | null) : null
-		if (saved) setThemeState(saved)
-	}, [])
+  // Load saved theme on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY) as Theme | null
+      if (saved === "dark" || saved === "light") setTheme(saved)
+    } catch {}
+  }, [])
 
-	useEffect(() => {
-		if (typeof window === "undefined") return
-		localStorage.setItem("client-theme", theme)
-	}, [theme])
+  // Keep multiple tabs in sync
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    function onStorage(e: StorageEvent) {
+      if (e.key !== STORAGE_KEY) return
+      const v = e.newValue as Theme | null
+      if (v === "dark" || v === "light") setTheme(v)
+    }
+    window.addEventListener("storage", onStorage)
+    return () => window.removeEventListener("storage", onStorage)
+  }, [])
 
-	function setTheme(t: Theme) {
-		setThemeState(t)
-	}
+  // Apply theme to <html> and persist
+  useEffect(() => {
+    if (typeof window === "undefined") return
 
-	function toggleTheme() {
-		setThemeState(prev => (prev === "dark" ? "light" : "dark"))
-	}
+    const root = document.documentElement
+    if (theme === "dark") root.classList.add("dark")
+    else root.classList.remove("dark")
 
-	return (
-		<ClientThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-			<div id="client-theme-wrapper" data-client-theme={theme} className={theme === "dark" ? "dark" : ""}>
-				{theme === "dark" && (
-					<div className="fixed top-2 left-2 z-50 px-2 py-1 text-xs rounded bg-black text-white pointer-events-none">
-						Client Dark
-					</div>
-				)}
-				{children}
-			</div>
-		</ClientThemeContext.Provider>
-	)
+    try {
+      window.localStorage.setItem(STORAGE_KEY, theme)
+    } catch {}
+  }, [theme])
+
+  const value = useMemo<Ctx>(() => ({ theme, setTheme }), [theme])
+
+  return <ClientThemeContext.Provider value={value}>{children}</ClientThemeContext.Provider>
 }
 
 export function useClientTheme() {
-	const ctx = useContext(ClientThemeContext)
-	if (!ctx) throw new Error("useClientTheme must be used within ClientThemeProvider")
-	return ctx
+  const ctx = useContext(ClientThemeContext)
+  if (!ctx) throw new Error("useClientTheme must be used within ClientThemeProvider")
+  return ctx
 }

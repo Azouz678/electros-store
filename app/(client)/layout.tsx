@@ -1,15 +1,10 @@
 import { ClientThemeProvider } from "@/components/client-theme-provider"
+import { SiteShell } from "@/components/site-shell"
 
-export default function ClientLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClientThemeProvider>
-      <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-500">
-        {children}
-      </div>
+      <SiteShell>{children}</SiteShell>
     </ClientThemeProvider>
   )
 }

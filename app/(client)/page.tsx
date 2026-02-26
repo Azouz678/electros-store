@@ -1,4 +1,3 @@
-import { SiteShell } from "@/components/site-shell"
 import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
 
@@ -10,14 +9,13 @@ const supabase = createClient(
 )
 
 export default async function Home() {
-
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
     .eq("is_active", true)
-  return (
-    <SiteShell>
 
+  return (
+    <>
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-10 text-white shadow-2xl">
         <div className="relative z-10 max-w-2xl">
@@ -45,41 +43,32 @@ export default async function Home() {
 
       {/* CATEGORIES */}
       <section className="mt-14">
-        <h2 className="mb-8 text-2xl font-bold">
-          أقسام المتجر
-        </h2>
+        <h2 className="mb-8 text-2xl font-bold">أقسام المتجر</h2>
 
         <div className="grid gap-6 md:grid-cols-3">
+          {categories?.map((category) => (
+            <Link
+              key={category.id}
+              href={`/categories/${category.id}`}
+              className="group rounded-3xl border bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-900"
+            >
+              {category.image ? (
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="h-40 w-full rounded-2xl object-cover"
+                />
+              ) : (
+                <div className="flex h-40 items-center justify-center text-4xl">
+                  🛒
+                </div>
+              )}
 
-{categories?.map((category) => (
-  <Link
-    key={category.id}
-    href={`/categories/${category.id}`}
-    className="group rounded-3xl border bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-900"
-  >
-
-    {category.image ? (
-      <img
-        src={category.image}
-        alt={category.name}
-        className="h-40 w-full rounded-2xl object-cover"
-      />
-    ) : (
-      <div className="flex h-40 items-center justify-center text-4xl">
-        🛒
-      </div>
-    )}
-
-    <h3 className="mt-4 text-xl font-semibold">
-      {category.name}
-    </h3>
-
-  </Link>
-))}
-
+              <h3 className="mt-4 text-xl font-semibold">{category.name}</h3>
+            </Link>
+          ))}
         </div>
       </section>
-
-    </SiteShell>
+    </>
   )
 }

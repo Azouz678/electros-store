@@ -17,7 +17,7 @@ export default function DashboardLayout({
 
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, toggleTheme } = useAdminTheme()
+  const { theme, setTheme } = useAdminTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -224,9 +224,36 @@ export default function DashboardLayout({
         </nav>
 
         {/* set Theme */}
-        <button
+
+        {/* Theme Buttons */}
+<div className="mt-8 grid grid-cols-2 gap-2">
+  <button
+    type="button"
+    aria-label="Dark mode"
+    onClick={() => setTheme("dark")}
+    className="w-full flex items-center justify-center gap-2
+      bg-gray-900 text-white py-2 rounded-xl shadow-lg
+      hover:scale-105 transition-all duration-300"
+  >
+    <Moon size={18} />
+    الوضع الليلي
+  </button>
+
+  <button
+    type="button"
+    aria-label="Light mode"
+    onClick={() => setTheme("light")}
+    className="w-full flex items-center justify-center gap-2
+      bg-white text-gray-900 py-2 rounded-xl shadow-lg border
+      hover:scale-105 transition-all duration-300"
+  >
+    <Sun size={18} />
+    الوضع الفاتح
+  </button>
+</div>
+        {/* <button
           aria-label="Toggle theme"
-          onClick={() => toggleTheme()}
+          onClick={() => setTheme("dark")}
           className="mt-8 w-full flex items-center justify-center gap-2 
           bg-gradient-to-r from-[#C59B3C] to-amber-500 
           text-white py-2 rounded-xl shadow-lg 
@@ -235,7 +262,7 @@ export default function DashboardLayout({
         >
           {mounted ? (theme === "dark" ? <Sun size={18} /> : <Moon size={18} />) : <Moon size={18} />}
           {mounted ? (theme === "dark" ? "الوضع الفاتح" : "الوضع الليلي") : "الوضع الليلي"}
-        </button>
+        </button> */}
 
         {/* Logout */}
         <button

@@ -1,52 +1,40 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
 
 type Theme = "light" | "dark"
+type Ctx = { theme: Theme; setTheme: (t: Theme) => void }
 
-const AdminThemeContext = createContext<{
-	theme: Theme
-	setTheme: (t: Theme) => void
-	toggleTheme: () => void
-} | null>(null)
+const AdminThemeContext = createContext<Ctx | null>(null)
+const STORAGE_KEY = "admin-theme"
 
 export function AdminThemeProvider({ children }: { children: React.ReactNode }) {
-	const [theme, setThemeState] = useState<Theme>("dark")
+  const [theme, setTheme] = useState<Theme>("dark")
 
-	useEffect(() => {
-		const saved = typeof window !== "undefined" ? (localStorage.getItem("admin-theme") as Theme | null) : null
-		if (saved) setThemeState(saved)
-	}, [])
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY) as Theme | null
+      if (saved === "dark" || saved === "light") setTheme(saved)
+    } catch {}
+  }, [])
 
-	useEffect(() => {
-		if (typeof window === "undefined") return
-		localStorage.setItem("admin-theme", theme)
-	}, [theme])
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === "dark") root.classList.add("dark")
+    else root.classList.remove("dark")
 
-	function setTheme(t: Theme) {
-		setThemeState(t)
-	}
+    try {
+      window.localStorage.setItem(STORAGE_KEY, theme)
+    } catch {}
+  }, [theme])
 
-	function toggleTheme() {
-		setThemeState(prev => (prev === "dark" ? "light" : "dark"))
-	}
+  const value = useMemo(() => ({ theme, setTheme }), [theme])
 
-	return (
-		<AdminThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-			<div id="admin-theme-wrapper" data-admin-theme={theme} className={theme === "dark" ? "dark" : ""}>
-				{theme === "dark" && (
-					<div className="fixed top-2 left-2 z-50 px-2 py-1 text-xs rounded bg-black text-white pointer-events-none">
-						Admin Dark
-					</div>
-				)}
-				{children}
-			</div>
-		</AdminThemeContext.Provider>
-	)
+  return <AdminThemeContext.Provider value={value}>{children}</AdminThemeContext.Provider>
 }
 
 export function useAdminTheme() {
-	const ctx = useContext(AdminThemeContext)
-	if (!ctx) throw new Error("useAdminTheme must be used within AdminThemeProvider")
-	return ctx
+  const ctx = useContext(AdminThemeContext)
+  if (!ctx) throw new Error("useAdminTheme must be used within AdminThemeProvider")
+  return ctx
 }
