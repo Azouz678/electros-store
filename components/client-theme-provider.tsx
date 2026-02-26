@@ -34,6 +34,11 @@ export function ClientThemeProvider({ children }: { children: React.ReactNode })
 	return (
 		<ClientThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
 			<div id="client-theme-wrapper" data-client-theme={theme} className={theme === "dark" ? "dark" : ""}>
+				{theme === "dark" && (
+					<div className="fixed top-2 left-2 z-50 px-2 py-1 text-xs rounded bg-black text-white pointer-events-none">
+						Client Dark
+					</div>
+				)}
 				{children}
 			</div>
 		</ClientThemeContext.Provider>

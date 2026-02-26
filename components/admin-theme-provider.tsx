@@ -34,6 +34,11 @@ export function AdminThemeProvider({ children }: { children: React.ReactNode }) 
 	return (
 		<AdminThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
 			<div id="admin-theme-wrapper" data-admin-theme={theme} className={theme === "dark" ? "dark" : ""}>
+				{theme === "dark" && (
+					<div className="fixed top-2 left-2 z-50 px-2 py-1 text-xs rounded bg-black text-white pointer-events-none">
+						Admin Dark
+					</div>
+				)}
 				{children}
 			</div>
 		</AdminThemeContext.Provider>
