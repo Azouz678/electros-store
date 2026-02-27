@@ -87,7 +87,7 @@ export default function ProductsClient() {
             text-transparent
             drop-shadow-2xl
           ">
-            المنتجات
+          كل المنتجات
           </h1>
 
           {/* Subtitle */}
@@ -95,10 +95,10 @@ export default function ProductsClient() {
             {qFromUrl ? (
               <>
                 نتائج البحث عن: 
-                <span className="font-bold text-amber-400"> {qFromUrl}</span>
+                <span className="font-bold text-amber-400 mt-2"> {qFromUrl}</span>
               </>
             ) : (
-              "استعرض المنتجات واختر ما يناسبك بأفضل جودة وأفضل سعر"
+              "استعرض المنتجات واختر ما يناسبك "
             )}
           </p>
 
