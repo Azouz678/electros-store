@@ -30,57 +30,130 @@ export default async function CategoryPage(
 
   return (
     <>
-      <h1 className="mb-8 text-3xl font-bold">
-        {category.name}
-      </h1>
+      <h1 className="mb-10 text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-white bg-clip-text text-transparent">
+  {category.name}
+</h1>
 
-      <div className="grid gap-6 md:grid-cols-3">
+<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
 
-        {products && products.length === 0 && (
-          <p>لا يوجد منتجات في هذه الفئة</p>
-        )}
+  {products && products.length === 0 && (
+    <p className="col-span-full text-center text-slate-500">
+      لا يوجد منتجات في هذه الفئة
+    </p>
+  )}
 
-        {products?.map((product) => {
+  {products?.map((product, index) => {
 
-          const whatsappUrl = `https://wa.me/967770498620?text=${encodeURIComponent(
-            `مرحبًا، أريد الاستفسار عن المنتج: ${product.name}`
-          )}`
+    const whatsappUrl = `https://wa.me/967770498620?text=${encodeURIComponent(
+      `مرحبًا، أريد الاستفسار عن المنتج: ${product.name}`
+    )}`
 
-          return (
-            <div
-              key={product.id}
-              className="rounded-3xl border bg-white p-6 shadow-lg dark:bg-slate-900"
+    return (
+      <div
+        key={product.id}
+        className="
+          group
+          relative
+          overflow-hidden
+          rounded-3xl
+          bg-white
+          dark:bg-slate-900
+          shadow-md
+          hover:shadow-2xl
+          transition-all duration-500
+          hover:-translate-y-2
+          animate-fadeInUp
+        "
+        style={{ animationDelay: `${index * 80}ms` }}
+      >
+
+        {/* صورة المنتج */}
+        <div className="relative h-44 md:h-52 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="
+              w-full h-full
+              object-cover
+              transition-transform duration-700
+              group-hover:scale-110
+            "
+          />
+        </div>
+
+        {/* المحتوى */}
+        <div className="p-4 space-y-3">
+
+          <h2 className="font-bold text-sm md:text-base line-clamp-2 group-hover:text-indigo-600 transition">
+            {product.name}
+          </h2>
+
+          {/* السعر */}
+          <div className="
+            inline-block
+            rounded-full
+            px-4 py-1
+            text-xs md:text-sm
+            font-extrabold
+            text-white
+            bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-400
+            shadow-md
+          ">
+            {product.price}
+          </div>
+
+          {/* الأزرار */}
+          <div className="flex gap-2 pt-2">
+
+            <a
+              href={`/products/${product.id}`}
+              className="
+                flex-1
+                text-center
+                rounded-xl
+                bg-gradient-to-r from-indigo-600 to-purple-600
+                text-white
+                py-2
+                text-xs md:text-sm
+                font-bold
+                shadow-lg
+                transition-all duration-300
+                hover:scale-105
+                active:scale-95
+              "
             >
-              <img
-                src={product.image}
-                alt={product.name}
-                className="mb-4 h-48 w-full object-cover rounded-xl"
-              />
+              عرض التفاصيل
+            </a>
 
-              <h2 className="text-lg font-semibold">{product.name}</h2>
-              <p className="text-gray-500 mb-4">{product.price}</p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              className="
+                flex-1
+                text-center
+                rounded-xl
+                bg-gradient-to-r from-green-500 to-emerald-600
+                text-white
+                py-2
+                text-xs md:text-sm
+                font-bold
+                shadow-lg
+                transition-all duration-300
+                hover:scale-105
+                active:scale-95
+              "
+            >
+              واتساب
+            </a>
 
-              <div className="flex gap-3">
-                <a
-                  href={`/products/${product.id}`}
-                  className="flex-1 text-center bg-black text-white py-2 rounded-lg hover:bg-gray-800"
-                >
-                  عرض التفاصيل
-                </a>
+          </div>
 
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  className="flex-1 text-center bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
-                >
-                  واتساب
-                </a>
-              </div>
-            </div>
-          )
-        })}
-
+        </div>
       </div>
+    )
+  })}
+
+</div>
     </>
   )
 }
