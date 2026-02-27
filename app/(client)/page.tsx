@@ -17,57 +17,140 @@ export default async function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-10 text-white shadow-2xl">
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-4xl font-extrabold md:text-5xl">
-            أحدث الأجهزة المنزلية
-          </h1>
+{/* HERO */}
+{/* HERO */}
+<section className="relative overflow-hidden rounded-3xl shadow-2xl">
 
-          <p className="mt-4 text-lg text-white/90">
-            تصفح الأقسام واختر ما يناسبك
-          </p>
+  {/* Background Gradient */}
+  <div className="absolute inset-0 bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600" />
+  <div className="absolute inset-0 bg-black/40" />
 
-          <div className="mt-6 flex gap-4">
-            <Link
-              href="/products"
-              className="rounded-2xl bg-white px-6 py-3 font-semibold text-black transition hover:scale-105 hover:shadow-xl"
-            >
-              استعرض المنتجات
-            </Link>
-          </div>
-        </div>
+  {/* Glow Effects */}
+  <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] bg-amber-400/30 blur-3xl rounded-full" />
+  <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] bg-indigo-400/30 blur-3xl rounded-full" />
 
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/20 blur-3xl"></div>
-        <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-white/20 blur-3xl"></div>
-      </section>
+  <div className="relative mx-auto max-w-6xl px-6 py-24 text-white text-center md:text-right">
+
+    {/* BRAND NAME — الأكبر */}
+    <h1 className="
+      text-4xl 
+      sm:text-5xl 
+      md:text-6xl 
+      lg:text-7xl 
+      font-extrabold 
+      leading-tight 
+      tracking-tight
+      bg-gradient-to-r from-white via-amber-300 to-white 
+      bg-clip-text 
+      text-transparent
+      drop-shadow-2xl
+    ">
+      إلكترو البيت الحديث
+    </h1>
+
+    {/* Sub Heading */}
+    <h2 className="
+      mt-6 
+      text-2xl 
+      sm:text-3xl 
+      md:text-4xl 
+      font-bold 
+      leading-snug
+    ">
+      أحدث الأجهزة الإلكترونية
+      <span className="block text-amber-400 mt-2">
+        ومنظومات الطاقة الشمسية
+      </span>
+    </h2>
+
+    {/* Description */}
+    <p className="mt-6 text-lg md:text-xl text-slate-200 max-w-2xl mx-auto md:mx-0">
+      جودة مضمونة • أفضل الأسعار • أحدث المنتجات
+    </p>
+
+    {/* Buttons */}
+    <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+      <a
+        href="/products"
+        className="rounded-2xl bg-amber-500 px-10 py-4 font-bold text-black shadow-2xl hover:scale-105 hover:bg-amber-400 transition-all duration-300"
+      >
+        تسوق الآن
+      </a>
+
+                    <a
+                href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
+                target="_blank"
+                rel="noreferrer"
+                className="
+                    rounded-2xl 
+                    bg-white/15 
+                    backdrop-blur-xl 
+                    px-10 py-4 
+                    font-bold 
+                    ring-1 ring-white/40 
+                    hover:bg-white/25 
+                    transition-all duration-300 
+                    hover:scale-105
+                "
+                >
+                تواصل معنا
+                </a>
+    </div>
+
+  </div>
+</section>
 
       {/* CATEGORIES */}
       <section className="mt-14">
         <h2 className="mb-8 text-2xl font-bold">أقسام المتجر</h2>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {categories?.map((category) => (
-            <Link
-              key={category.id}
-              href={`/categories/${category.id}`}
-              className="group rounded-3xl border bg-white p-6 shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl dark:bg-slate-900"
-            >
-              {category.image ? (
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="h-40 w-full rounded-2xl object-cover"
-                />
-              ) : (
-                <div className="flex h-40 items-center justify-center text-4xl">
-                  🛒
-                </div>
-              )}
+<div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+  {categories?.map((category) => (
+    <Link
+      key={category.id}
+      href={`/categories/${category.id}`}
+      className="
+        group
+        rounded-3xl
+        bg-white
+        dark:bg-slate-900
+        shadow-md
+        hover:shadow-2xl
+        transition-all duration-300
+        hover:-translate-y-1
+        overflow-hidden
+      "
+    >
+      {/* Container الصورة */}
+<div className="relative h-48 w-full overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
 
-              <h3 className="mt-4 text-xl font-semibold">{category.name}</h3>
-            </Link>
-          ))}
-        </div>
+  {category.image ? (
+    <img
+      src={category.image}
+      alt={category.name}
+      className="
+        max-h-full
+        max-w-full
+        object-contain
+        transition-transform duration-500
+        group-hover:scale-105
+      "
+    />
+  ) : (
+    <div className="text-4xl">🛒</div>
+  )}
+
+</div>
+
+      {/* الاسم */}
+      <div className="p-4 text-center">
+        <h3 className="text-lg font-bold group-hover:text-indigo-600 transition">
+          {category.name}
+        </h3>
+      </div>
+    </Link>
+  ))}
+</div>
       </section>
     </>
   )
