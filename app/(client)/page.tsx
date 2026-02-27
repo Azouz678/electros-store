@@ -70,33 +70,74 @@ export default async function Home() {
 
     {/* Buttons */}
     <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-      <a
-        href="/products"
-        className="rounded-2xl bg-amber-500 px-10 py-4 font-bold text-black shadow-2xl hover:scale-105 hover:bg-amber-400 transition-all duration-300"
-      >
-        تسوق الآن
-      </a>
+        <a
+          href="/products"
+          className="
+              relative
+              rounded-2xl
+              bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300
+              px-10 py-4
+              font-extrabold
+              text-white
+              shadow-2xl
+              transition-all duration-300
+              hover:scale-105
+              hover:shadow-yellow-500/50
+              active:scale-95
+          "
+        >
+          {/* Glow layer */}
+          <span className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition duration-300 rounded-2xl"></span>
 
-                    <a
-                href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
-                target="_blank"
-                rel="noreferrer"
-                className="
-                    rounded-2xl 
-                    bg-white/15 
-                    backdrop-blur-xl 
-                    px-10 py-4 
-                    font-bold 
-                    ring-1 ring-white/40 
-                    hover:bg-green-700
-                    transition-all duration-300 
-                    hover:scale-105
-                "
-      // className="w-full rounded-2xl bg-green-600 px-5 py-3 text-center font-semibold text-white hover:bg-green-700 transition"
+          {/* النص */}
+          <span className="relative z-10 tracking-wide">
+            تسوق الآن
+          </span>
 
-                >
-                تواصل معنا
-                </a>
+          {/* أيقونة سهم */}
+          <span className="relative z-10 text-lg transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </a>
+
+       <a
+          href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
+          target="_blank"
+          rel="noreferrer"
+          className="
+            group
+            relative
+            flex items-center justify-center gap-3
+            rounded-2xl
+            px-10 py-4
+            font-bold
+            text-white
+            bg-gradient-to-r from-green-500 via-green-600 to-emerald-600
+            shadow-xl shadow-green-500/30
+            transition-all duration-300
+            hover:scale-105
+            hover:shadow-2xl hover:shadow-green-500/50
+            active:scale-95
+            overflow-hidden
+          "
+        >
+          {/* Glow effect */}
+          <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-500" />
+
+          {/* Icon */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6"
+          >
+            <path d="M12 2C6.48 2 2 6.03 2 11.05c0 1.98.7 3.8 1.9 5.29L2 22l5.82-1.87c1.43.78 3.05 1.22 4.68 1.22 5.52 0 10-4.03 10-9.05S17.52 2 12 2zm0 16.36c-1.43 0-2.84-.4-4.05-1.15l-.29-.18-3.45 1.1 1.12-3.34-.2-.31c-.87-1.35-1.33-2.9-1.33-4.43 0-4.17 3.66-7.56 8.17-7.56s8.17 3.39 8.17 7.56-3.66 7.56-8.17 7.56z"/>
+          </svg>
+
+          <span className="relative z-10">
+            تواصل عبر واتساب
+          </span>
+        </a>
     </div>
 
   </div>
