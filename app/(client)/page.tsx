@@ -29,7 +29,7 @@ export default async function Home() {
   <div className="absolute -top-40 -right-40 h-[28rem] w-[28rem] bg-amber-400/30 blur-3xl rounded-full" />
   <div className="absolute -bottom-40 -left-40 h-[28rem] w-[28rem] bg-indigo-400/30 blur-3xl rounded-full" />
 
-    <div className="relative mx-auto max-w-6xl px-5 py-14 sm:py-20 md:py-24 text-white text-center md:text-right">
+    <div className="relative mx-auto max-w-6xl px-4 py-12 sm:py-20 md:py-24 text-white text-center md:text-right">
     {/* BRAND NAME — الأكبر */}
     <h1 className="
       text-4xl 
