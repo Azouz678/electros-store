@@ -88,10 +88,12 @@ export default async function Home() {
                     px-10 py-4 
                     font-bold 
                     ring-1 ring-white/40 
-                    hover:bg-white/25 
+                    hover:bg-green-700
                     transition-all duration-300 
                     hover:scale-105
                 "
+      // className="w-full rounded-2xl bg-green-600 px-5 py-3 text-center font-semibold text-white hover:bg-green-700 transition"
+
                 >
                 تواصل معنا
                 </a>

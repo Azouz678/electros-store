@@ -63,18 +63,47 @@ export default function ProductsClient() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl ring-1 ring-black/10 bg-white p-6 shadow-sm dark:bg-slate-900 dark:ring-white/10">
-        <h1 className="text-2xl font-extrabold md:text-3xl">المنتجات</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          {qFromUrl ? (
-            <>
-              نتائج البحث عن: <span className="font-bold">{qFromUrl}</span>
-            </>
-          ) : (
-            "استعرض المنتجات واضغط لعرض التفاصيل"
-          )}
-        </p>
-      </div>
+    <section className="relative overflow-hidden rounded-3xl shadow-2xl">
+
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600" />
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* Glow Effects */}
+        <div className="absolute -top-40 -right-40 h-[24rem] w-[24rem] bg-amber-400/30 blur-3xl rounded-full" />
+        <div className="absolute -bottom-40 -left-40 h-[24rem] w-[24rem] bg-indigo-400/30 blur-3xl rounded-full" />
+
+        <div className="relative px-6 py-16 text-white text-center md:text-right">
+
+          {/* Title */}
+          <h1 className="
+            text-3xl 
+            sm:text-4xl 
+            md:text-5xl 
+            font-extrabold 
+            tracking-tight
+            bg-gradient-to-r from-white via-amber-300 to-white
+            bg-clip-text 
+            text-transparent
+            drop-shadow-2xl
+          ">
+            المنتجات
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-4 text-base md:text-lg text-slate-200 max-w-xl mx-auto md:mx-0">
+            {qFromUrl ? (
+              <>
+                نتائج البحث عن: 
+                <span className="font-bold text-amber-400"> {qFromUrl}</span>
+              </>
+            ) : (
+              "استعرض المنتجات واختر ما يناسبك بأفضل جودة وأفضل سعر"
+            )}
+          </p>
+
+        </div>
+      </section>
 
       {loading ? (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -92,9 +121,9 @@ export default function ProductsClient() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => {
-            // ✅ حماية من /undefined
+        
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {filtered.map((p, index) => {
             const pid =
               (p as any).id ??
               (p as any).product_id ??
@@ -106,43 +135,110 @@ export default function ProductsClient() {
             const currency = cur === "USD" ? "$" : cur
 
             const priceText =
-              p.price != null && p.price !== "" ? `${formatPrice(p.price)} ${currency}` : ""
+              p.price != null && p.price !== ""
+                ? `${formatPrice(p.price)} ${currency}`
+                : ""
 
             return (
               <div
                 key={pid ?? p.name}
-                className="overflow-hidden rounded-3xl ring-1 ring-black/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-white/10"
+                className="
+                  group
+                  relative
+                  overflow-hidden
+                  rounded-3xl
+                  bg-white
+                  dark:bg-slate-900
+                  shadow-md
+                  transition-all
+                  duration-500
+                  hover:-translate-y-2
+                  hover:shadow-2xl
+                  active:scale-95
+                  animate-fadeInUp
+                "
+                style={{ animationDelay: `${index * 80}ms` }}
               >
-                <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800">
+                {/* الصورة */}
+                <div className="relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-slate-100 dark:bg-slate-800">
                   {p.image ? (
-                    <img src={p.image} alt={p.name} className="h-full w-full object-cover" loading="lazy" />
+                    <img
+                      src={p.image}
+                      alt={p.name}
+                      loading="lazy"
+                      className="
+                        h-full w-full
+                        object-cover
+                        transition-transform
+                        duration-700
+                        group-hover:scale-110
+                      "
+                    />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-5xl">🛒</div>
+                    <div className="flex h-full w-full items-center justify-center text-5xl">
+                      🛒
+                    </div>
+                  )}
+
+                  {/* Badge السعر */}
+                  {priceText && (
+                    <div className="
+                      absolute top-3 right-3
+                      rounded-xl
+                      bg-gradient-to-r
+                      from-indigo-600
+                      to-purple-600
+                      px-3 py-1
+                      text-xs font-extrabold
+                      text-white
+                      shadow-lg
+                    ">
+                      {priceText}
+                    </div>
                   )}
                 </div>
 
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="text-lg font-extrabold">{p.name}</div>
-                    {priceText && (
-                      <div className="shrink-0 rounded-2xl bg-slate-900 px-3 py-1 text-sm font-extrabold text-white dark:bg-white dark:text-slate-900">
-                        {priceText}
-                      </div>
-                    )}
-                  </div>
+                {/* المحتوى */}
+                <div className="p-4 space-y-3">
+                  <h3 className="text-base md:text-lg font-bold line-clamp-2 group-hover:text-indigo-600 transition">
+                    {p.name}
+                  </h3>
 
                   {pid ? (
                     <Link
                       href={`/products/${pid}`}
-                      className="mt-4 block w-full rounded-2xl bg-slate-900 py-2 text-center text-sm font-bold text-white hover:opacity-90 dark:bg-white dark:text-slate-900"
+                      className="
+                        block w-full text-center
+                        rounded-2xl
+                        bg-gradient-to-r
+                        from-indigo-600
+                        to-purple-600
+                        py-2
+                        text-sm font-bold
+                        text-white
+                        shadow-md
+                        transition-all
+                        duration-300
+                        hover:shadow-xl
+                        hover:scale-105
+                        active:scale-95
+                      "
                     >
                       عرض التفاصيل
                     </Link>
                   ) : (
                     <button
-                      type="button"
                       disabled
-                      className="mt-4 block w-full rounded-2xl bg-slate-400 py-2 text-center text-sm font-bold text-white opacity-70 cursor-not-allowed"
+                      className="
+                        block w-full
+                        rounded-2xl
+                        bg-slate-400
+                        py-2
+                        text-sm font-bold
+                        text-white
+                        opacity-70
+                        cursor-not-allowed
+                      "
                     >
                       المنتج بدون ID
                     </button>

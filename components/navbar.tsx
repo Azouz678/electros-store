@@ -12,13 +12,13 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState("")
 
-  const nav = useMemo(
-    () => [
-      { label: "المنتجات", href: "/products" },
-      { label: "تواصل", href: "/contact" },
-    ],
-    []
-  )
+  // const nav = useMemo(
+  //   () => [
+  //     { label: "المنتجات", href: "/products" },
+  //     { label: "تواصل", href: "/contact" },
+  //   ],
+  //   []
+  // )
 
   function goSearch() {
     const s = q.trim()
@@ -57,7 +57,7 @@ export function Navbar() {
 
         {/* CENTER Desktop Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
-          {nav.map((it) => (
+          {/* {nav.map((it) => (
             <Link
               key={it.href}
               href={it.href}
@@ -66,7 +66,7 @@ export function Navbar() {
               {it.label}
               <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-slate-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
             </Link>
-          ))}
+          ))} */}
         </nav>
 
         {/* RIGHT Desktop Actions */}
@@ -117,7 +117,7 @@ export function Navbar() {
               </button>
             </div>
 
-            {nav.map((it) => (
+            {/* {nav.map((it) => (
               <Link
                 key={it.href}
                 href={it.href}
@@ -126,7 +126,7 @@ export function Navbar() {
               >
                 {it.label}
               </Link>
-            ))}
+            ))} */}
           </div>
         </div>
       )}
