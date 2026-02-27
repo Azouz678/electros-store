@@ -83,13 +83,19 @@ export default function ProductsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => {
+            const pid =
+          (p as any).id ??
+          (p as any).product_id ??
+          (p as any).uuid ??
+          (p as any).productId ??
+          (p as any).ID
           const currency = (p as any).currency || ""
           const priceText =
             p.price != null && p.price !== "" ? `${formatPrice(p.price)} ${currency}` : ""
 
             return (
               <div
-                key={p.id}
+                key={pid ?? p.name}
                 className="overflow-hidden rounded-3xl ring-1 ring-black/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-900 dark:ring-white/10"
               >
                 {/* ✅ الصورة كاملة في الكرت */}
@@ -112,12 +118,22 @@ export default function ProductsPage() {
                   </div>
 
                   {/* ✅ زر التفاصيل */}
-                  <Link
-                    href={`/products/${p.id}`}
-                    className="mt-4 block w-full rounded-2xl bg-slate-900 py-2 text-center text-sm font-bold text-white hover:opacity-90 dark:bg-white dark:text-slate-900"
-                  >
-                    عرض التفاصيل
-                  </Link>
+              {pid ? (
+                <Link
+                  href={`/products/${pid}`}
+                  className="mt-4 block w-full rounded-2xl bg-slate-900 py-2 text-center text-sm font-bold text-white hover:opacity-90 dark:bg-white dark:text-slate-900"
+                >
+                  عرض التفاصيل
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-4 block w-full rounded-2xl bg-slate-400 py-2 text-center text-sm font-bold text-white opacity-70 cursor-not-allowed"
+                >
+                  المنتج بدون ID
+                </button>
+              )}
                 </div>
               </div>
             )

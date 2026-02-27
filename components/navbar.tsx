@@ -38,8 +38,8 @@ export function Navbar() {
         {/* Logo + Brand */}
         <Link href="/" className="flex items-center gap-3">
           <div className="relative h-10 w-10 overflow-hidden rounded-xl ring-1 ring-black/10 bg-white dark:bg-slate-900">
-            <Image src="/logo.png" alt="Electros" fill className="object-contain p-1" priority />
-          </div>
+          <Image src="/logo.png" alt="Electros" fill className="object-contain p-1" priority />     
+     </div>
           <div className="leading-tight">
             <div className="text-lg font-extrabold tracking-tight">Electros</div>
             <div className="text-xs text-slate-500 dark:text-slate-400">أجهزة منزلية حديثة</div>
