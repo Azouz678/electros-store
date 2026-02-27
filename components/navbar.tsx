@@ -37,9 +37,17 @@ export function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         {/* Logo + Brand */}
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative h-10 w-10 overflow-hidden rounded-xl ring-1 ring-black/10 bg-white dark:bg-slate-900">
-          <Image src="/logo.png" alt="Electros" fill className="object-contain p-1" priority />     
-     </div>
+<div className="relative h-11 w-11 overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 p-[2px] dark:from-white dark:to-slate-300">
+  <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white dark:bg-slate-900">
+    <Image
+      src="/logo.png"
+      alt="Electros"
+      fill
+      className="object-contain p-1"
+      priority
+    />
+  </div>
+</div>
           <div className="leading-tight">
             <div className="text-lg font-extrabold tracking-tight">Electros</div>
             <div className="text-xs text-slate-500 dark:text-slate-400">أجهزة منزلية حديثة</div>
@@ -80,14 +88,33 @@ export function Navbar() {
         </div>
 
         {/* Mobile menu button */}
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-2xl ring-1 ring-black/10 px-3 py-2 text-sm font-semibold dark:ring-white/10 md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Menu"
-        >
-          {open ? "إغلاق" : "قائمة"}
-        </button>
+  {/* Mobile menu button */}
+<div className="flex items-center gap-2 md:hidden">
+  <ThemeToggle />
+
+  <button
+    type="button"
+    onClick={() => setOpen((v) => !v)}
+    aria-label="Menu"
+    className="group relative flex h-10 w-10 items-center justify-center rounded-xl ring-1 ring-black/10 dark:ring-white/10 transition hover:bg-black/5 dark:hover:bg-white/10"
+  >
+    <span
+      className={`absolute h-0.5 w-5 bg-black dark:bg-white transition-all duration-300 ${
+        open ? "rotate-45" : "-translate-y-1.5"
+      }`}
+    />
+    <span
+      className={`absolute h-0.5 w-5 bg-black dark:bg-white transition-all duration-300 ${
+        open ? "opacity-0" : ""
+      }`}
+    />
+    <span
+      className={`absolute h-0.5 w-5 bg-black dark:bg-white transition-all duration-300 ${
+        open ? "-rotate-45" : "translate-y-1.5"
+      }`}
+    />
+  </button>
+</div>
       </div>
 
       {/* Mobile drawer */}
