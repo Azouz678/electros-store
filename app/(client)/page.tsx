@@ -73,18 +73,19 @@ export default async function Home() {
           <a
             href="/products"
             className="
-              group relative overflow-hidden
-              rounded-xl
-              px-6 py-3
+              relative
+              rounded-xl sm:rounded-2xl
+              px-5 sm:px-8
+              py-2.5 sm:py-3.5
               text-sm sm:text-base
               font-bold
-              text-black
+              text-white
               bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300
-              shadow-lg
+              shadow-lg sm:shadow-2xl
               transition-all duration-500
-              animate-[fadeUp_0.8s_ease]
               hover:scale-105
               active:scale-95
+              overflow-hidden
             "
           >
             {/* Gradient متحرك */}
@@ -105,18 +106,21 @@ export default async function Home() {
             target="_blank"
             rel="noreferrer"
             className="
-              group relative overflow-hidden
-              rounded-xl
-              px-6 py-3
+              group
+              relative
+              flex items-center justify-center gap-2 sm:gap-3
+              rounded-xl sm:rounded-2xl
+              px-5 sm:px-8
+              py-2.5 sm:py-3.5
               text-sm sm:text-base
               font-bold
               text-white
-              bg-gradient-to-r from-green-500 via-emerald-600 to-green-500
-              shadow-lg shadow-green-500/30
+              bg-gradient-to-r from-green-500 via-green-600 to-emerald-600
+              shadow-lg sm:shadow-2xl
               transition-all duration-500
-              animate-[fadeUp_0.8s_ease]
               hover:scale-105
               active:scale-95
+              overflow-hidden
             "
           >
             {/* Gradient متحرك */}
@@ -126,7 +130,7 @@ export default async function Home() {
             <span className="absolute -inset-1 bg-green-400/30 blur-2xl opacity-40 group-hover:opacity-70 transition duration-700"></span>
 
             <span className="relative z-10 tracking-wide">
-              تواصل عبر واتساب
+              تواصل معنا 
             </span>
           </a>
 
