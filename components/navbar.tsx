@@ -63,7 +63,13 @@ export function Navbar() {
            {/* LOGO */}
 <Link
   href="/"
-  className="relative flex items-center overflow-visible"
+  className="
+    relative
+    -mr-2 md:-mr-1   /* تحريك بسيط جهة اليمين */
+    h-16 sm:h-20 md:h-16   /* أكبر في الجوال */
+    w-52 sm:w-60 md:w-48
+    flex items-center
+  "
 >
   <div
     className="
