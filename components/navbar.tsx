@@ -99,7 +99,7 @@ export function Navbar() {
       className="
         hidden dark:block
         object-contain
-        scale-[1.35]
+        scale-[1.5]
         sm:scale-[1.4]
         md:scale-[1.25]
         transition-transform duration-500
