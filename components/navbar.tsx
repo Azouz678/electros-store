@@ -81,7 +81,7 @@ export function Navbar() {
       priority
       className="
         object-contain
-        scale-[1.5]           /* تكبير بصري */
+        scale-[1.55]           /* تكبير بصري */
         sm:scale-[1.4]
         md:scale-[1.25]
         transition-transform duration-500
@@ -99,7 +99,7 @@ export function Navbar() {
       className="
         hidden dark:block
         object-contain
-        scale-[1.5]
+        scale-[1.55]
         sm:scale-[1.4]
         md:scale-[1.25]
         transition-transform duration-500
