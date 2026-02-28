@@ -17,8 +17,7 @@ export default async function Home() {
   return (
     <>
       {/* HERO */}
-{/* HERO */}
-{/* HERO */}
+
         <section className="relative overflow-hidden rounded-3xl shadow-2xl">
 
           {/* Background Gradient */}

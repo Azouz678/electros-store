@@ -60,56 +60,62 @@ export function Navbar() {
         <div className="relative mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
 
    
-           {/* LOGO */}
-<Link
-  href="/"
-  className="relative flex
-         -mr-2 md:-mr-1
-  items-center overflow-visible"
->
-  <div
-    className="
-      relative
-      w-[170px] h-[42px]      /* حجم افتراضي للناف */
-      sm:w-[190px] sm:h-[44px]
-      md:w-[200px] md:h-[46px]
-    "
-  >
-    {/* Light Mode */}
-    <Image
-      src="/logo-light.svg"
-      alt="Electro Modern Home"
-      fill
-      priority
-      className="
-        object-contain
-        scale-[1.55]           /* تكبير بصري */
-        sm:scale-[1.4]
-        md:scale-[1.25]
-        transition-transform duration-500
-        drop-shadow-[0_0_18px_rgba(255,200,0,0.45)]
-        dark:hidden
-      "
-    />
+         {/* LOGO */}
+          <Link
+            href="/"
+            className="
+              relative
+              -mr-2 md:-mr-1   /* تحريك بسيط جهة اليمين */
+              h-16 sm:h-20 md:h-16   /* أكبر في الجوال */
+              w-52 sm:w-60 md:w-48
+              flex items-center
+            "
+          >
 
-    {/* Dark Mode */}
-    <Image
-      src="/logo-dark.svg"
-      alt="Electro Modern Home"
-      fill
-      priority
-      className="
-        hidden dark:block
-        object-contain
-        scale-[1.55]
-        sm:scale-[1.4]
-        md:scale-[1.25]
-        transition-transform duration-500
-        drop-shadow-[0_0_22px_rgba(120,120,255,0.5)]
-      "
-    />
-  </div>
-</Link>
+            {/* Glow خلفية للوضع الفاتح */}
+            <div className="
+              absolute inset-0
+              rounded-3xl
+              bg-gradient-to-r
+              from-indigo-400/20
+              via-purple-400/20
+              to-pink-400/20
+              blur-2xl
+              opacity-70
+              dark:from-indigo-500/30
+              dark:via-purple-500/30
+              dark:to-amber-400/30
+            " />
+
+            {/* Light mode logo */}
+            <Image
+              src="/logo-light.svg"
+              alt="Electro Modern Home"
+              fill
+              priority
+              className="
+                object-contain
+                dark:hidden
+                relative z-10
+                drop-shadow-[0_6px_20px_rgba(0,0,0,0.25)]
+              "
+            />
+
+            {/* Dark mode logo */}
+            <Image
+              src="/logo-dark.svg"
+              alt="Electro Modern Home"
+              fill
+              priority
+              className="
+                hidden dark:block
+                object-contain
+                relative z-10
+                drop-shadow-[0_6px_25px_rgba(255,255,255,0.25)]
+              "
+            />
+
+          </Link>
 
           {/* ICONS */}
           <div className="flex items-center gap-6">
