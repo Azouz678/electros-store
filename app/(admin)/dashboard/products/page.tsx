@@ -4,16 +4,23 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Pencil, Trash2, ImagePlus, Power, CheckCircle } from "lucide-react"
 
+type ProductImage = {
+  id: string
+  image_url: string
+  is_primary: boolean
+  sort_order: number
+}
+
 type Product = {
   id: string
   name: string
   price: string
   currency: string
   description: string
-  image: string
   category_id: string
   slug: string
   is_active: boolean
+  product_images?: ProductImage[]
 }
 
 type Category = {
@@ -51,9 +58,12 @@ export default function ManageProducts() {
   const [newCurrency, setNewCurrency] = useState<string>("YER")
   const [newDescription, setNewDescription] = useState("")
   const [newCategory, setNewCategory] = useState("")
-  const [newImage, setNewImage] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-
+  // const [newImage, setNewImage] = useState<File | null>(null)
+  // const [preview, setPreview] = useState<string | null>(null)
+  const [existingImages, setExistingImages] = useState<ProductImage[]>([])
+  const [newImages, setNewImages] = useState<File[]>([])
+  const [newPreviews, setNewPreviews] = useState<string[]>([])  
+  
   const [updateBtn, setUpdateBtn] = useState<"idle" | "loading" | "success">("idle")
 
   useEffect(() => {
@@ -63,7 +73,10 @@ export default function ManageProducts() {
   async function fetchData() {
     let query = supabase
       .from("products")
-      .select("*")
+      .select(`
+          *,
+          product_images (*)
+        `)
       .order("created_at", { ascending: false })
 
     if (search.trim() !== "") {
@@ -92,86 +105,107 @@ export default function ManageProducts() {
   }
 
   async function deleteProduct(product: Product) {
-    if (!confirm("هل أنت متأكد من الحذف؟")) return
 
-    if (product.image) {
-      const fileName = product.image.split("/").pop()
+  if (!confirm("هل أنت متأكد من الحذف؟")) return
+
+  // 1️⃣ جلب كل صور المنتج
+  const { data: images } = await supabase
+    .from("product_images")
+    .select("id, image_url")
+    .eq("product_id", product.id)
+
+  // 2️⃣ حذف الصور من Storage
+  if (images && images.length > 0) {
+    for (const img of images) {
+      const fileName = img.image_url.split("/").pop()
       if (fileName) {
         await supabase.storage.from("products").remove([fileName])
       }
     }
-
-    await supabase.from("products").delete().eq("id", product.id)
-    fetchData()
   }
+
+  // 3️⃣ حذف المنتج (سيحذف الصور من الجدول تلقائياً بسبب on delete cascade)
+  await supabase
+    .from("products")
+    .delete()
+    .eq("id", product.id)
+
+  fetchData()
+} 
 
   async function updateProduct() {
 
-    if (!editing) return
+  if (!editing) return
 
-    setUpdateBtn("loading")
+  setUpdateBtn("loading")
 
-    const trimmed = newName.trim()
-    if (!trimmed) {
-      setUpdateBtn("idle")
-      return alert("اسم المنتج مطلوب")
-    }
+  const trimmed = newName.trim()
+  if (!trimmed) {
+    setUpdateBtn("idle")
+    return alert("اسم المنتج مطلوب")
+  }
 
-    const newSlug = generateSlug(trimmed)
-    let imageUrl = editing.image
+  const newSlug = generateSlug(trimmed)
 
-    if (newImage) {
+  // 1️⃣ تحديث بيانات المنتج الأساسية فقط (بدون صور)
+  const { error: updateError } = await supabase
+    .from("products")
+    .update({
+      name: trimmed,
+      price: Number(newPrice),
+      currency: newCurrency,
+      description: newDescription,
+      category_id: newCategory,
+      slug: newSlug
+    })
+    .eq("id", editing.id)
 
-      // حذف الصورة القديمة
-      if (editing.image) {
-        const oldFile = editing.image.split("/").pop()
-        if (oldFile) {
-          await supabase.storage.from("products").remove([oldFile])
-        }
-      }
+  if (updateError) {
+    setUpdateBtn("idle")
+    return alert("فشل تحديث البيانات")
+  }
 
-      const fileName = `${Date.now()}-${newImage.name}`
+  // 2️⃣ رفع الصور الجديدة (إن وجدت)
+  if (newImages.length > 0) {
 
-      const { error } = await supabase.storage
+    for (let i = 0; i < newImages.length; i++) {
+
+      const file = newImages[i]
+      const fileName = `${Date.now()}-${file.name}`
+
+      const { error: uploadError } = await supabase.storage
         .from("products")
-        .upload(fileName, newImage)
+        .upload(fileName, file)
 
-      if (error) {
+      if (uploadError) {
         setUpdateBtn("idle")
-        return alert("فشل رفع الصورة")
+        return alert("فشل رفع إحدى الصور")
       }
 
       const { data } = supabase.storage
         .from("products")
         .getPublicUrl(fileName)
 
-      imageUrl = data.publicUrl
-    }
-
-    await supabase
-      .from("products")
-      .update({
-        name: trimmed,
-        price: Number(newPrice),
-        currency: newCurrency,
-        description: newDescription,
-        category_id: newCategory,
-        image: imageUrl,
-        slug: newSlug
+      await supabase.from("product_images").insert({
+        product_id: editing.id,
+        image_url: data.publicUrl,
+        sort_order: existingImages.length + i,
+        is_primary: existingImages.length === 0 && i === 0
       })
-      .eq("id", editing.id)
-
-    setUpdateBtn("success")
-    showSuccess("تم تحديث المنتج بنجاح ✅")
-
-    setTimeout(() => {
-      setEditing(null)
-      setNewImage(null)
-      setPreview(null)
-      setUpdateBtn("idle")
-      fetchData()
-    }, 1200)
+    }
   }
+
+  setUpdateBtn("success")
+  showSuccess("تم تحديث المنتج بنجاح ✅")
+
+  setTimeout(() => {
+    setEditing(null)
+    setNewImages([])
+    setNewPreviews([])
+    setUpdateBtn("idle")
+    fetchData()
+  }, 1200)
+}
 
   return (
     <div className="space-y-6">
@@ -207,10 +241,13 @@ export default function ManageProducts() {
             >
 
               <div className="flex gap-4 items-center">
-                <img
-                  src={product.image}
-                  className="w-20 h-20 object-cover rounded-xl"
-                />
+              <img
+                src={
+                  product.product_images?.find(i => i.is_primary)?.image_url ||
+                  product.product_images?.[0]?.image_url
+                }
+                className="w-20 h-20 object-cover rounded-xl"
+              />
                 <div>
                   <p className="font-semibold text-lg">{product.name}</p>
                   <p className="text-lg font-bold text-green-600">
@@ -235,7 +272,7 @@ export default function ManageProducts() {
                     setNewCurrency(product.currency)
                     setNewDescription(product.description)
                     setNewCategory(product.category_id)
-                    setPreview(product.image)
+                    setExistingImages(product.product_images || [])
                   }}
                   className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
                 >
@@ -298,27 +335,113 @@ export default function ManageProducts() {
               ))}
             </select>
 
-            <label className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C59B3C] to-amber-500 text-white text-sm font-medium shadow-md hover:scale-105 transition cursor-pointer">
-              <ImagePlus size={16} />
-              تغيير الصورة
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files) {
-                    setNewImage(e.target.files[0])
-                    setPreview(URL.createObjectURL(e.target.files[0]))
-                  }
-                }}
-              />
-            </label>
+  <div className="space-y-3">
 
-            {preview && (
-              <div className="w-full h-44 rounded-2xl overflow-hidden shadow-lg">
-                <img src={preview} className="w-full h-full object-cover" />
-              </div>
-            )}
+  <p className="font-medium">صور المنتج</p>
+
+  <div className="grid grid-cols-3 gap-3">
+
+    {existingImages.map((img) => (
+      <div key={img.id} className="relative">
+
+        <img
+          src={img.image_url}
+          className={`w-full h-24 object-cover rounded-xl border-2 ${
+            img.is_primary ? "border-green-500" : "border-transparent"
+          }`}
+        />
+
+        <div className="absolute top-1 left-1 flex gap-1">
+
+          {/* زر تعيين رئيسية */}
+          <button
+            type="button"
+            onClick={async () => {
+              if (!editing) return
+
+              await supabase
+                .from("product_images")
+                .update({ is_primary: false })
+                .eq("product_id", editing.id)
+
+              await supabase
+                .from("product_images")
+                .update({ is_primary: true })
+                .eq("id", img.id)
+
+              fetchData()
+              setExistingImages(prev =>
+                prev.map(p =>
+                  ({ ...p, is_primary: p.id === img.id })
+                )
+              )
+            }}
+            className="bg-green-600 text-white text-xs px-2 py-1 rounded"
+          >
+            رئيسية
+          </button>
+
+          {/* زر حذف */}
+          <button
+            type="button"
+            onClick={async () => {
+              const fileName = img.image_url.split("/").pop()
+              if (fileName) {
+                await supabase.storage.from("products").remove([fileName])
+              }
+
+              await supabase
+                .from("product_images")
+                .delete()
+                .eq("id", img.id)
+
+              setExistingImages(prev =>
+                prev.filter(p => p.id !== img.id)
+              )
+            }}
+            className="bg-red-600 text-white text-xs px-2 py-1 rounded"
+          >
+            حذف
+          </button>
+
+        </div>
+
+      </div>
+    ))}
+
+  </div>
+
+        {/* إضافة صور جديدة */}
+        <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl cursor-pointer">
+          <ImagePlus size={16} />
+          إضافة صور
+          <input
+            type="file"
+            hidden
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              if (!e.target.files) return
+              const files = Array.from(e.target.files)
+              setNewImages(files)
+              setNewPreviews(files.map(f => URL.createObjectURL(f)))
+            }}
+          />
+        </label>
+
+        {newPreviews.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {newPreviews.map((preview, index) => (
+              <img
+                key={index}
+                src={preview}
+                className="w-full h-24 object-cover rounded-xl"
+              />
+            ))}
+          </div>
+        )}
+
+      </div>
 
             <div className="flex justify-end gap-3">
               <button onClick={() => setEditing(null)} className="border px-4 py-2 rounded-xl">
