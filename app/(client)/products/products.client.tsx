@@ -10,13 +10,19 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+type ProductImage = {
+  id: string
+  image_url: string
+  is_primary: boolean
+}
+
 type Product = {
   id: string
   name: string
   price?: number | string | null
-  image?: string | null
   is_active?: boolean
   currency?: string | null
+  product_images?: ProductImage[]
 }
 
 function formatPrice(v: any) {
@@ -41,7 +47,18 @@ export default function ProductsClient() {
       setLoading(true)
       const { data } = await supabase
         .from("products")
-        .select("id,name,price,image,currency,is_active")
+        .select(`
+                  id,
+                  name,
+                  price,
+                  currency,
+                  is_active,
+                  product_images (
+                    id,
+                    image_url,
+                    is_primary
+                  )
+                `)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
 
@@ -161,24 +178,30 @@ export default function ProductsClient() {
               >
                 {/* الصورة */}
                 <div className="relative aspect-[4/3] overflow-hidden rounded-t-3xl bg-slate-100 dark:bg-slate-800">
-                  {p.image ? (
-                    <img
-                      src={p.image}
-                      alt={p.name}
-                      loading="lazy"
-                      className="
-                        h-full w-full
-                        object-cover
-                        transition-transform
-                        duration-700
-                        group-hover:scale-110
-                      "
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-5xl">
-                      🛒
-                    </div>
-                  )}
+                    {(() => {
+                      const primary =
+                        p.product_images?.find(i => i.is_primary)?.image_url ||
+                        p.product_images?.[0]?.image_url
+
+                      return primary ? (
+                        <img
+                          src={primary}
+                          alt={p.name}
+                          loading="lazy"
+                          className="
+                            h-full w-full
+                            object-cover
+                            transition-transform
+                            duration-700
+                            group-hover:scale-110
+                          "
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-5xl">
+                          🛒
+                        </div>
+                      )
+                    })()}
 
                   {/* Badge السعر */}
                   {priceText && (

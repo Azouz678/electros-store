@@ -10,23 +10,37 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-    export default async function ProductPage({
-      params,
-    }: {
-      params: Promise<{ id: string }> | { id: string }
-    }) {
-       const { id } = await Promise.resolve(params)
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }> | { id: string }
+}) {
+
+  const { id } = await Promise.resolve(params)
 
   const { data: product, error } = await supabase
     .from("products")
-    .select("id,name,price,currency,image,description,is_active")
+    .select(`
+      id,
+      name,
+      price,
+      currency,
+      description,
+      is_active,
+      product_images (
+        id,
+        image_url,
+        is_primary
+      )
+    `)
     .eq("id", id)
     .maybeSingle()
 
-  // ✅ لو عندك is_active Boolean أو 1/0
   const active =
     product &&
-    (product.is_active === true || product.is_active === 1 || product.is_active === "1")
+    (product.is_active === true ||
+      product.is_active === 1 ||
+      product.is_active === "1")
 
   if (error || !product || !active) {
     return (
