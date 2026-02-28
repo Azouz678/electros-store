@@ -60,77 +60,54 @@ export function Navbar() {
         <div className="relative mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
 
    
-            {/* LOGO */}
-           <Link
-              href="/"
-              className="
-                relative 
-                flex 
-                items-center 
-                justify-center
-                h-12
-                sm:h-14
-                w-48
-                sm:w-56
-                md:w-60
-                transition-all duration-500
-              "
-            >
+           {/* LOGO */}
+<Link
+  href="/"
+  className="relative flex items-center overflow-visible"
+>
+  <div
+    className="
+      relative
+      w-[170px] h-[42px]      /* حجم افتراضي للناف */
+      sm:w-[190px] sm:h-[44px]
+      md:w-[200px] md:h-[46px]
+    "
+  >
+    {/* Light Mode */}
+    <Image
+      src="/logo-light.svg"
+      alt="Electro Modern Home"
+      fill
+      priority
+      className="
+        object-contain
+        scale-[1.35]           /* تكبير بصري */
+        sm:scale-[1.4]
+        md:scale-[1.25]
+        transition-transform duration-500
+        drop-shadow-[0_0_18px_rgba(255,200,0,0.45)]
+        dark:hidden
+      "
+    />
 
-              {/* Glow خلف الشعار */}
-              <span
-                className="
-                  absolute
-                  inset-0
-                  rounded-full
-                  blur-2xl
-                  opacity-60
-                  -z-10
-                  transition-all duration-500
-                  bg-gradient-to-r
-                  from-indigo-500/30
-                  via-purple-500/30
-                  to-pink-500/30
-                  dark:from-cyan-400/20
-                  dark:via-blue-500/20
-                  dark:to-emerald-400/20
-                "
-              />
-
-              {/* Light Mode Logo */}
-              <Image
-                src="/logo-light.svg"
-                alt="Electro Modern Home"
-                fill
-                priority
-                className="
-                  object-contain
-                  dark:hidden
-                  scale-110
-                  sm:scale-105
-                  md:scale-100
-                  drop-shadow-[0_0_20px_rgba(255,200,0,0.4)]
-                "
-              />
-
-              {/* Dark Mode Logo */}
-              <Image
-                src="/logo-dark.svg"
-                alt="Electro Modern Home"
-                fill
-                priority
-                className="
-                  hidden
-                  object-contain
-                  dark:block
-                  scale-110
-                  sm:scale-105
-                  md:scale-100
-                  drop-shadow-[0_0_25px_rgba(0,200,255,0.4)]
-                "
-              />
-
-            </Link>
+    {/* Dark Mode */}
+    <Image
+      src="/logo-dark.svg"
+      alt="Electro Modern Home"
+      fill
+      priority
+      className="
+        hidden dark:block
+        object-contain
+        scale-[1.35]
+        sm:scale-[1.4]
+        md:scale-[1.25]
+        transition-transform duration-500
+        drop-shadow-[0_0_22px_rgba(120,120,255,0.5)]
+      "
+    />
+  </div>
+</Link>
 
           {/* ICONS */}
           <div className="flex items-center gap-6">
