@@ -53,39 +53,77 @@ const { data: products } = await supabase
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
 
         {products && products.length === 0 && (
-          <div className="col-span-full flex items-center justify-center py-20">
+         <div className="col-span-full flex items-center justify-center py-20">
 
-            <div className="
-              relative
-              text-center
-              px-8 py-10
-              rounded-3xl
-              backdrop-blur-xl
-              bg-white/5
-              ring-1 ring-white/10
-              shadow-2xl
-            ">
+            <div
+              className="
+                relative
+                text-center
+                px-8 py-12
+                rounded-3xl
+                overflow-hidden
+                backdrop-blur-xl
+                transition-all duration-500
+                bg-white/80
+                dark:bg-slate-900/60
+                ring-1 ring-black/10
+                dark:ring-white/10
+                shadow-xl
+                dark:shadow-2xl
+              "
+            >
 
-              {/* Glow خلفية خفيفة */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 blur-2xl opacity-50"></div>
+              {/* Glow Layer */}
+              <div className="
+                absolute inset-0 rounded-3xl
+                bg-gradient-to-r
+                from-indigo-500/10
+                via-purple-500/10
+                to-pink-500/10
+                dark:from-indigo-500/20
+                dark:via-purple-500/20
+                dark:to-pink-500/20
+                blur-2xl
+                opacity-60
+                pointer-events-none
+              " />
 
+              {/* Main Text */}
               <p
                 className="
                   relative
                   text-2xl sm:text-3xl md:text-4xl
                   font-extrabold
-                  bg-gradient-to-r from-white via-amber-300 to-white
+                  tracking-wide
+                  bg-gradient-to-r
+                  from-indigo-600
+                  via-purple-600
+                  to-indigo-600
+                  dark:from-white
+                  dark:via-amber-300
+                  dark:to-white
                   bg-clip-text
                   text-transparent
-                  drop-shadow-2xl
-                  tracking-wide
-                  animate-pulse
+                  drop-shadow-md
+                  dark:drop-shadow-2xl
+                  animate-[fadeUp_0.6s_ease]
                 "
               >
                 لا يوجد منتجات في هذه الفئة
               </p>
 
-              <p className="relative mt-4 text-slate-300 text-sm md:text-base">
+              {/* Sub Text */}
+              <p
+                className="
+                  relative
+                  mt-4
+                  text-sm md:text-base
+                  font-medium
+                  text-slate-600
+                  dark:text-slate-300
+                  transition-colors duration-300
+                "
+              >
                 يرجى تصفح فئات أخرى أو العودة لاحقاً
               </p>
 
