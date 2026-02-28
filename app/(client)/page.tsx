@@ -66,77 +66,71 @@ export default async function Home() {
               جودة مضمونة • أفضل الأسعار • أحدث المنتجات
             </p>
 
-            {/* Buttons */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                <a
-                  href="/products"
-                  className="
-                      relative
-                      rounded-2xl
-                      bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300
-                      px-10 py-4
-                      font-extrabold
-                      text-white
-                      shadow-2xl
-                      transition-all duration-300
-                      hover:scale-105
-                      hover:shadow-yellow-500/50
-                      active:scale-95
-                  "
-                >
-                  {/* Glow layer */}
-                  <span className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition duration-300 rounded-2xl"></span>
+              {/* Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
 
-                  {/* النص */}
-                  <span className="relative z-10 tracking-wide">
-                    تسوق الآن
-                  </span>
+          {/* زر تسوق الآن */}
+          <a
+            href="/products"
+            className="
+              group relative overflow-hidden
+              rounded-xl
+              px-6 py-3
+              text-sm sm:text-base
+              font-bold
+              text-black
+              bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300
+              shadow-lg
+              transition-all duration-500
+              animate-[fadeUp_0.8s_ease]
+              hover:scale-105
+              active:scale-95
+            "
+          >
+            {/* Gradient متحرك */}
+            <span className="absolute inset-0 bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-200 animate-[gradientMove_4s_linear_infinite] opacity-60"></span>
 
-                  {/* أيقونة سهم */}
-                  <span className="relative z-10 text-lg transition-transform duration-300 group-hover:translate-x-1">
-                    →
-                  </span>
-                </a>
+            {/* Liquid light */}
+            <span className="absolute -inset-1 bg-white/20 blur-xl opacity-40 group-hover:opacity-70 transition duration-700"></span>
 
-              <a
-                  href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="
-                    group
-                    relative
-                    flex items-center justify-center gap-3
-                    rounded-2xl
-                    px-10 py-4
-                    font-bold
-                    text-white
-                    bg-gradient-to-r from-green-500 via-green-600 to-emerald-600
-                    shadow-xl shadow-green-500/30
-                    transition-all duration-300
-                    hover:scale-105
-                    hover:shadow-2xl hover:shadow-green-500/50
-                    active:scale-95
-                    overflow-hidden
-                  "
-                >
-                  {/* Glow effect */}
-                  <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition duration-500" />
+            {/* النص */}
+            <span className="relative z-10 tracking-wide">
+              تسوق الآن
+            </span>
+          </a>
 
-                  {/* Icon */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path d="M12 2C6.48 2 2 6.03 2 11.05c0 1.98.7 3.8 1.9 5.29L2 22l5.82-1.87c1.43.78 3.05 1.22 4.68 1.22 5.52 0 10-4.03 10-9.05S17.52 2 12 2zm0 16.36c-1.43 0-2.84-.4-4.05-1.15l-.29-.18-3.45 1.1 1.12-3.34-.2-.31c-.87-1.35-1.33-2.9-1.33-4.43 0-4.17 3.66-7.56 8.17-7.56s8.17 3.39 8.17 7.56-3.66 7.56-8.17 7.56z"/>
-                  </svg>
+          {/* زر واتساب */}
+          <a
+            href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
+            target="_blank"
+            rel="noreferrer"
+            className="
+              group relative overflow-hidden
+              rounded-xl
+              px-6 py-3
+              text-sm sm:text-base
+              font-bold
+              text-white
+              bg-gradient-to-r from-green-500 via-emerald-600 to-green-500
+              shadow-lg shadow-green-500/30
+              transition-all duration-500
+              animate-[fadeUp_0.8s_ease]
+              hover:scale-105
+              active:scale-95
+            "
+          >
+            {/* Gradient متحرك */}
+            <span className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400 animate-[gradientMove_4s_linear_infinite] opacity-60"></span>
 
-                  <span className="relative z-10">
-                    تواصل عبر واتساب
-                  </span>
-                </a>
-            </div>
+            {/* Glow بطيء */}
+            <span className="absolute -inset-1 bg-green-400/30 blur-2xl opacity-40 group-hover:opacity-70 transition duration-700"></span>
+
+            <span className="relative z-10 tracking-wide">
+              تواصل عبر واتساب
+            </span>
+          </a>
+
+        </div>
 
           </div>
         </section>

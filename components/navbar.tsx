@@ -52,8 +52,15 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-white/60 dark:bg-slate-950/60 border-b border-white/10 shadow-lg shadow-black/5">
-
+<header className="
+  sticky top-0 z-50
+  h-19  md:h-19         /* نحيف جداً */
+  backdrop-blur-2xl
+  bg-white/70
+  dark:bg-slate-950/70
+  border-b border-white/10
+  shadow-md
+">
         {/* subtle glow */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
 
@@ -66,8 +73,8 @@ export function Navbar() {
             className="
               relative
               -mr-2 md:-mr-1   /* تحريك بسيط جهة اليمين */
-              h-16 sm:h-20 md:h-16   /* أكبر في الجوال */
-              w-52 sm:w-60 md:w-48
+              h-16 sm:h-16 md:h-16   /* أكبر في الجوال */
+              w-44 sm:w-60 md:w-48
               flex items-center
             "
           >
