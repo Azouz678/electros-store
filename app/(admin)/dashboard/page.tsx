@@ -46,8 +46,10 @@ export default function Dashboard() {
   const [currency, setCurrency] = useState<"YER" | "SAR" | "USD">("YER") /* ===== أضفنا هذا ===== */
   const [description, setDescription] = useState("")
   const [categoryId, setCategoryId] = useState("")
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [productPreview, setProductPreview] = useState<string | null>(null)
+  // const [imageFile, setImageFile] = useState<File | null>(null)
+  // const [productPreview, setProductPreview] = useState<string | null>(null)
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [productPreviews, setProductPreviews] = useState<string[]>([])
 
   const [loading, setLoading] = useState(false)
 
@@ -169,65 +171,83 @@ export default function Dashboard() {
   // إضافة منتج
   // ===============================
 
-  async function addProduct() {
+      async function addProduct() {
 
-    if (!imageFile || !categoryId || !name || !price)
-      return alert("أكمل جميع البيانات")
+        if (!imageFiles.length || !categoryId || !name || !price)
+          return alert("أكمل جميع البيانات")
 
-    setLoading(true)
+        setLoading(true)
 
-    const slug = generateSlug(name)
+        const slug = generateSlug(name)
 
-    const { data: existing } = await supabase
-      .from("products")
-      .select("id")
-      .eq("slug", slug)
-      .single()
+        const { data: existing } = await supabase
+          .from("products")
+          .select("id")
+          .eq("slug", slug)
+          .single()
 
-    if (existing) {
-      setLoading(false)
-      return alert("منتج بنفس الاسم موجود")
-    }
+        if (existing) {
+          setLoading(false)
+          return alert("منتج بنفس الاسم موجود")
+        }
 
-    const fileName = `prod-${Date.now()}.jpg`
+        // 1️⃣ نحفظ المنتج أولاً بدون صور
+        const { data: newProduct, error: productError } = await supabase
+          .from("products")
+          .insert([{
+            name,
+            price: Number(price),
+            currency,
+            description,
+            category_id: categoryId,
+            slug,
+            is_active: true
+          }])
+          .select()
+          .single()
 
-    const { error: uploadError } = await supabase.storage
-      .from("products")
-      .upload(fileName, imageFile)
+        if (productError || !newProduct) {
+          setLoading(false)
+          return alert("فشل إضافة المنتج")
+        }
 
-    if (uploadError) {
-      setLoading(false)
-      return alert("فشل رفع الصورة")
-    }
+        // 2️⃣ رفع الصور وحفظها في جدول منفصل
+        for (let i = 0; i < imageFiles.length; i++) {
 
-    const { data } = supabase.storage
-      .from("products")
-      .getPublicUrl(fileName)
+          const file = imageFiles[i]
+          const fileName = `prod-${Date.now()}-${i}.jpg`
 
-    await supabase.from("products").insert([
-      {
-        name,
-        price: Number(price),
-        currency,
-        description,
-        category_id: categoryId,
-        image: data.publicUrl,
-        slug,
-        is_active: true
+          const { error: uploadError } = await supabase.storage
+            .from("products")
+            .upload(fileName, file)
+
+          if (uploadError) {
+            setLoading(false)
+            return alert("فشل رفع إحدى الصور")
+          }
+
+          const { data } = supabase.storage
+            .from("products")
+            .getPublicUrl(fileName)
+
+          await supabase.from("product_images").insert({
+            product_id: newProduct.id,
+            image_url: data.publicUrl,
+            sort_order: i,
+            is_primary: i === 0
+          })
+        }
+
+        setLoading(false)
+        setName("")
+        setPrice("")
+        setDescription("")
+        setCategoryId("")
+        setImageFiles([])
+        setProductPreviews([])
+
+        showSuccess("تم إضافة المنتج بنجاح ✅")
       }
-    ])
-
-    setLoading(false)
-    setName("")
-    setPrice("")
-    setDescription("")
-    setCategoryId("")
-    setProductPreview(null)
-    setImageFile(null)
-
-    // ✅ (تعديل 4) رسالة نجاح إضافة المنتج
-    showSuccess("تم إضافة المنتج بنجاح ✅")
-  }
 
   return (
     <div className="max-w-3xl">
@@ -393,52 +413,61 @@ export default function Dashboard() {
         <div className="space-y-3">
 
           <label className="block text-sm font-medium">
-            صورة المنتج
+            صور المنتج
           </label>
 
-          <div className="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-green-500 transition group">
+          <div className="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-2xl p-6 text-center cursor-pointer hover:border-green-500 transition">
 
-            {!productPreview ? (
-              <>
-                <div className="flex flex-col items-center gap-2 text-gray-500">
-                  <ImagePlus size={28} />
-                  <p className="text-sm">اضغط لاختيار صورة</p>
-                </div>
+            <div className="flex flex-col items-center gap-2 text-gray-500">
+              <ImagePlus size={28} />
+              <p className="text-sm">اضغط لاختيار صور متعددة</p>
+            </div>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      const file = e.target.files[0]
-                      setImageFile(file)
-                      setProductPreview(URL.createObjectURL(file))
-                    }
-                  }}
-                />
-              </>
-            ) : (
-              <>
-                <img
-                  src={productPreview}
-                  className="w-full h-48 object-cover rounded-xl"
-                />
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={(e) => {
+                if (!e.target.files) return
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setImageFile(null)
-                    setProductPreview(null)
-                  }}
-                  className="absolute top-2 right-2 bg-red-500 text-white text-xs px-3 py-1 rounded-full shadow"
-                >
-                  حذف
-                </button>
-              </>
-            )}
+                const filesArray = Array.from(e.target.files)
 
+                setImageFiles(filesArray)
+                setProductPreviews(
+                  filesArray.map(file => URL.createObjectURL(file))
+                )
+              }}
+            />
           </div>
+
+          {productPreviews.length > 0 && (
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              {productPreviews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={preview}
+                    className="w-full h-28 object-cover rounded-xl"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newFiles = [...imageFiles]
+                      const newPreviews = [...productPreviews]
+                      newFiles.splice(index, 1)
+                      newPreviews.splice(index, 1)
+                      setImageFiles(newFiles)
+                      setProductPreviews(newPreviews)
+                    }}
+                    className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                  >
+                    حذف
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
         </div>
 
