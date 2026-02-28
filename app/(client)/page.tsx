@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { createClient } from "@supabase/supabase-js"
+import Link from "next/link"
 
 export const revalidate = 0
 
@@ -67,72 +67,54 @@ export default async function Home() {
             </p>
 
               {/* Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+        <div className="mt-8 flex flex-row sm:flex-row gap-3 justify-center md:justify-start">
 
           {/* زر تسوق الآن */}
-          <a
-            href="/products"
-            className="
-              relative
-              rounded-xl sm:rounded-2xl
-              px-5 sm:px-8
-              py-2.5 sm:py-3.5
-              text-sm sm:text-base
-              font-bold
-              text-white
-              bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-300
-              shadow-lg sm:shadow-2xl
-              transition-all duration-500
-              hover:scale-105
-              active:scale-95
-              overflow-hidden
-            "
-          >
-            {/* Gradient متحرك */}
-            <span className="absolute inset-0 bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-200 animate-[gradientMove_4s_linear_infinite] opacity-60"></span>
+ <a
+    href="/products"
+    className="
+      flex-1 sm:flex-none
+      relative
+      text-center
+      rounded-xl
+      px-4 py-2.5
+      sm:px-8 sm:py-3
+      text-sm sm:text-base
+      font-bold
+      text-white
+      bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400
+      shadow-lg
+      transition-all duration-300
+      hover:scale-105
+      active:scale-95
+    "
+  >
+    تسوق الآن
+  </a>
 
-            {/* Liquid light */}
-            <span className="absolute -inset-1 bg-white/20 blur-xl opacity-40 group-hover:opacity-70 transition duration-700"></span>
-
-            {/* النص */}
-            <span className="relative z-10 tracking-wide">
-              تسوق الآن
-            </span>
-          </a>
-
-          {/* زر واتساب */}
-          <a
-            href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
-            target="_blank"
-            rel="noreferrer"
-            className="
-              group
-              relative
-              flex items-center justify-center gap-2 sm:gap-3
-              rounded-xl sm:rounded-2xl
-              px-5 sm:px-8
-              py-2.5 sm:py-3.5
-              text-sm sm:text-base
-              font-bold
-              text-white
-              bg-gradient-to-r from-green-500 via-green-600 to-emerald-600
-              shadow-lg sm:shadow-2xl
-              transition-all duration-500
-              hover:scale-105
-              active:scale-95
-              overflow-hidden
-            "
-          >
-            {/* Gradient متحرك */}
-            <span className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-500 to-green-400 animate-[gradientMove_4s_linear_infinite] opacity-60"></span>
-
-            {/* Glow بطيء */}
-            <span className="absolute -inset-1 bg-green-400/30 blur-2xl opacity-40 group-hover:opacity-70 transition duration-700"></span>
-
-            <span className="relative z-10 tracking-wide">
-              تواصل معنا 
-            </span>
-          </a>
+  {/* زر واتساب */}
+  <a
+    href="https://wa.me/967770498620?text=مرحباً، أريد الاستفسار عن منتجاتكم"
+    target="_blank"
+    rel="noreferrer"
+    className="
+      flex-1 sm:flex-none
+      text-center
+      rounded-xl
+      px-4 py-2.5
+      sm:px-8 sm:py-3
+      text-sm sm:text-base
+      font-bold
+      text-white
+      bg-gradient-to-r from-green-500 to-emerald-600
+      shadow-lg
+      transition-all duration-300
+      hover:scale-105
+      active:scale-95
+    "
+  >
+  تواصل معنا
+  </a>
 
         </div>
 
