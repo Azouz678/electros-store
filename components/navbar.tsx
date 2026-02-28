@@ -2,134 +2,188 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X } from "lucide-react"
+import { Search } from "lucide-react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export function Navbar() {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [q, setQ] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<any[]>([])
+  const boxRef = useRef<HTMLDivElement>(null)
 
-  // const nav = useMemo(
-  //   () => [
-  //     { label: "المنتجات", href: "/products" },
-  //     { label: "تواصل", href: "/contact" },
-  //   ],
-  //   []
-  // )
+  /* =========================
+     اغلاق البحث عند الضغط خارج الصندوق
+  ========================== */
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setSearchOpen(false)
+        setQuery("")          // ← يفضي البحث
+        setResults([])
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
 
-  function goSearch() {
-    const s = q.trim()
-    router.push(s ? `/products?q=${encodeURIComponent(s)}` : "/products")
-    setOpen(false)
-  }
+  /* =========================
+     Live Search
+  ========================== */
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([])
+      return
+    }
+
+    const run = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id,name")
+        .ilike("name", `%${query}%`)
+        .limit(6)
+
+      setResults(data || [])
+    }
+
+    const delay = setTimeout(run, 300)
+    return () => clearTimeout(delay)
+  }, [query])
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-slate-950/70 border-b border-black/5 dark:border-white/10">
-      <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+    <>
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-slate-950/70 border-b border-black/5 dark:border-white/10">
+        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
 
-        {/* LEFT: Logo only */}
-            <Link href="/" className="flex items-center">
-              <div className="relative h-14 w-40">
-                
-                {/* يظهر في الوضع الفاتح */}
-                <Image
-                  src="/logo-dark.png"
-                  alt="Electro Modern Home"
-                  fill
-                  className="object-contain dark:hidden"
-                  priority
-                />
-
-                {/* يظهر في الوضع الليلي */}
-                <Image
-                  src="/logo-light.png"
-                  alt="Electro Modern Home"
-                  fill
-                  className="hidden object-contain dark:block"
-                  priority
-                />
-
-              </div>
-            </Link>
-
-        {/* CENTER Desktop Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
-          {/* {nav.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              className="relative group"
-            >
-              {it.label}
-              <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-slate-900 dark:bg-white transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-          ))} */}
-        </nav>
-
-        {/* RIGHT Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-full bg-white dark:bg-slate-900 px-4 py-2 shadow-sm ring-1 ring-black/10 dark:ring-white/10">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحث..."
-              className="bg-transparent text-sm outline-none w-40"
-              onKeyDown={(e) => e.key === "Enter" && goSearch()}
+          {/* LOGO */}
+          <Link href="/" className="relative h-14 w-40">
+            <Image
+              src="/logo-dark.png"
+              alt="Logo"
+              fill
+              className="object-contain dark:hidden"
+              priority
             />
+            <Image
+              src="/logo-light.png"
+              alt="Logo"
+              fill
+              className="hidden object-contain dark:block"
+              priority
+            />
+          </Link>
+
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-4">
+
+            {/* 🔎 Search Icon — بدون مربعات */}
+            <button
+              onClick={() => {
+                setSearchOpen(true)
+                setQuery("")      // يفتح فاضي دائماً
+                setResults([])
+              }}
+              className="
+                relative
+                text-slate-700 dark:text-white
+                transition-all duration-300
+                hover:scale-110
+                hover:text-indigo-600
+              "
+            >
+              <Search size={22} strokeWidth={2.5} />
+            </button>
+
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
         </div>
+      </header>
 
-        {/* MOBILE: Menu + Theme */}
-        <div className="flex items-center gap-3 md:hidden">
-          <ThemeToggle />
+      {/* ================= SEARCH OVERLAY ================= */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-md flex items-start justify-center pt-28">
 
-          <button
-            onClick={() => setOpen(!open)}
-            className="p-2 rounded-xl ring-1 ring-black/10 dark:ring-white/10"
+          <div
+            ref={boxRef}
+            className="
+              w-[92%] max-w-2xl
+              rounded-3xl
+              bg-white dark:bg-slate-900
+              shadow-2xl
+              p-8
+              animate-[fadeIn_.3s_ease]
+            "
           >
-            {open ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </div>
 
-      {/* MOBILE DRAWER */}
-      {open && (
-        <div className="md:hidden bg-white dark:bg-slate-950 border-t border-black/5 dark:border-white/10">
-          <div className="px-4 py-5 space-y-4">
-
-            <div className="flex gap-2">
+            {/* Input */}
+            <div className="relative">
               <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="ابحث عن منتج..."
-                className="flex-1 rounded-xl px-4 py-2 ring-1 ring-black/10 dark:ring-white/10 bg-transparent outline-none"
-                onKeyDown={(e) => e.key === "Enter" && goSearch()}
+                className="
+                  w-full
+                  rounded-2xl
+                  px-6 py-4
+                  text-lg
+                  ring-1 ring-black/10 dark:ring-white/10
+                  bg-transparent
+                  outline-none
+                  transition-all
+                  focus:ring-indigo-500
+                "
               />
-              <button
-                onClick={goSearch}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-              >
-                بحث
-              </button>
             </div>
 
-            {/* {nav.map((it) => (
-              <Link
-                key={it.href}
-                href={it.href}
-                onClick={() => setOpen(false)}
-                className="block px-4 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 font-semibold"
-              >
-                {it.label}
-              </Link>
-            ))} */}
+            {/* Results */}
+            {results.length > 0 && (
+              <div className="mt-6 space-y-2 max-h-72 overflow-y-auto">
+
+                {results.map((r) => (
+                  <Link
+                    key={r.id}
+                    href={`/products/${r.id}`}
+                    onClick={() => {
+                      setSearchOpen(false)
+                      setQuery("")
+                      setResults([])
+                    }}
+                    className="
+                      block
+                      px-5 py-4
+                      rounded-2xl
+                      font-semibold
+                      transition-all duration-300
+                      hover:bg-indigo-50
+                      dark:hover:bg-slate-800
+                      hover:translate-x-1
+                    "
+                  >
+                    {r.name}
+                  </Link>
+                ))}
+
+              </div>
+            )}
+
+            {/* Empty State */}
+            {query && results.length === 0 && (
+              <div className="mt-6 text-center text-slate-400 text-sm">
+                لا يوجد نتائج
+              </div>
+            )}
+
           </div>
         </div>
       )}
-    </header>
+    </>
   )
 }
