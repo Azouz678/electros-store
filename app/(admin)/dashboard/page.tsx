@@ -50,6 +50,7 @@ export default function Dashboard() {
   // const [productPreview, setProductPreview] = useState<string | null>(null)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [productPreviews, setProductPreviews] = useState<string[]>([])
+  const [primaryIndex, setPrimaryIndex] = useState<number | null>(null)
 
   const [loading, setLoading] = useState(false)
 
@@ -175,6 +176,11 @@ export default function Dashboard() {
 
         if (!imageFiles.length || !categoryId || !name || !price)
           return alert("أكمل جميع البيانات")
+        
+        if (primaryIndex === null) {
+              return alert("حدد الصورة الرئيسية")
+        }
+
 
         setLoading(true)
 
@@ -234,7 +240,7 @@ export default function Dashboard() {
             product_id: newProduct.id,
             image_url: data.publicUrl,
             sort_order: i,
-            is_primary: i === 0
+            is_primary: primaryIndex === i
           })
         }
 
@@ -442,31 +448,51 @@ export default function Dashboard() {
           </div>
 
           {productPreviews.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 mt-4">
-              {productPreviews.map((preview, index) => (
-                <div key={index} className="relative">
-                  <img
-                    src={preview}
-                    className="w-full h-28 object-cover rounded-xl"
-                  />
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            {productPreviews.map((preview, index) => (
+              <div key={index} className="relative">
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newFiles = [...imageFiles]
-                      const newPreviews = [...productPreviews]
-                      newFiles.splice(index, 1)
-                      newPreviews.splice(index, 1)
-                      setImageFiles(newFiles)
-                      setProductPreviews(newPreviews)
-                    }}
-                    className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
-                  >
-                    حذف
-                  </button>
-                </div>
-              ))}
-            </div>
+                <img
+                  src={preview}
+                  className={`w-full h-28 object-cover rounded-xl border-2 ${
+                    primaryIndex === index ? "border-green-500" : "border-transparent"
+                  }`}
+                />
+
+                {/* زر اختيار رئيسية */}
+                <button
+                  type="button"
+                  onClick={() => setPrimaryIndex(index)}
+                  className="absolute top-1 left-1 bg-green-600 text-white text-xs px-2 py-1 rounded"
+                >
+                  رئيسية
+                </button>
+
+                {/* زر حذف */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newFiles = [...imageFiles]
+                    const newPreviews = [...productPreviews]
+
+                    newFiles.splice(index, 1)
+                    newPreviews.splice(index, 1)
+
+                    setImageFiles(newFiles)
+                    setProductPreviews(newPreviews)
+
+                    if (primaryIndex === index) {
+                      setPrimaryIndex(null)
+                    }
+                  }}
+                  className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                >
+                  حذف
+                </button>
+
+              </div>
+            ))}
+          </div>
           )}
 
         </div>
