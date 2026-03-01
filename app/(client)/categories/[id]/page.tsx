@@ -6,6 +6,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+  
+
 function formatPrice(v: any) {
   const n = Number(v)
   if (!Number.isFinite(n)) return v ? String(v) : ""
@@ -30,9 +32,21 @@ export default async function CategoryPage(
     return <div>Category not found</div>
   }
 
+
+
 const { data: products } = await supabase
   .from("products")
-  .select("id,name,price,image,currency")
+  .select(`
+            id,
+            name,
+            price,
+            currency,
+            product_images (
+              id,
+              image_url,
+              is_primary
+            )
+  `)
   .eq("category_id", id)
   .eq("is_active", true)
 
@@ -170,17 +184,29 @@ const { data: products } = await supabase
 
               {/* Image */}
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="
-                    h-full w-full
-                    object-cover
-                    transition-transform
-                    duration-700
-                    group-hover:scale-110
-                  "
-                />
+                  {(() => {
+                    const primary =
+                      product.product_images?.find(i => i.is_primary)?.image_url ||
+                      product.product_images?.[0]?.image_url
+
+                    return primary ? (
+                      <img
+                        src={primary}
+                        alt={product.name}
+                        className="
+                          h-full w-full
+                          object-cover
+                          transition-transform
+                          duration-700
+                          group-hover:scale-110
+                        "
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-5xl">
+                        🛒
+                      </div>
+                    )
+                  })()}
 
                 {/* Price Badge */}
                 {priceText && (
