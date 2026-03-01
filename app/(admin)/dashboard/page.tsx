@@ -40,7 +40,7 @@ export default function Dashboard() {
   const [categoryName, setCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
-  const [displayOrder, setDisplayOrder] = useState(0)
+  const [displayOrder, setDisplayOrder] = useState(1)
 
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
@@ -288,7 +288,7 @@ export default function Dashboard() {
             type="number"
             value={displayOrder}
             onChange={(e) => setDisplayOrder(Number(e.target.value))}
-            placeholder="ترتيب العرض (0 يظهر أولاً)"
+            placeholder="ترتيب العرض (1 يظهر أولاً)"
             className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
