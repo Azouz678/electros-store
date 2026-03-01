@@ -26,7 +26,7 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
-  const [newOrder, setNewOrder] = useState<number>(1)
+  const [newOrder, setNewOrder] = useState<string>("")
   const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -144,13 +144,33 @@ export default function ManageCategories() {
       imageUrl = data.publicUrl
     }
 
+
+    const orderNumber = newOrder === "" ? 1 : Number(newOrder)
+
+        if (orderNumber < 1) {
+          setUpdateState("idle")
+          return alert("الترتيب يجب أن يكون 1 أو أكبر")
+        }
+
+        const { data: duplicate } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("display_order", orderNumber)
+          .neq("id", editing.id)
+          .single()
+
+        if (duplicate) {
+          setUpdateState("idle")
+          return alert("يوجد فئة أخرى بنفس رقم الترتيب")
+        }
+
     await supabase
         .from("categories")
         .update({
           name: trimmed,
           slug,
           image: imageUrl,
-          display_order: newOrder
+          display_order: orderNumber
         })
       .eq("id", editing.id)
 
@@ -225,7 +245,7 @@ export default function ManageCategories() {
                     setEditing(cat)
                     setNewName(cat.name)
                     setPreview(cat.image)
-                    setNewOrder(cat.display_order || 0)
+                    setNewOrder(String(cat.display_order ?? 1))
                   }}
                 className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
               >
@@ -258,13 +278,25 @@ export default function ManageCategories() {
               onChange={e => setNewName(e.target.value)}
               className="w-full border p-3 rounded-xl"
             />
+
             <input
-                type="number"
-                value={newOrder}
-                onChange={(e) => setNewOrder(Number(e.target.value))}
-                placeholder="ترتيب العرض (0 يظهر أولاً)"
-                className="w-full border p-3 rounded-xl"
-              />
+              type="number"
+              min="1"
+              value={newOrder}
+              onChange={(e) => {
+                const val = e.target.value
+
+                if (val === "") {
+                  setNewOrder("")
+                  return
+                }
+
+                if (Number(val) < 1) return
+
+                setNewOrder(val)
+              }}
+              className="w-full border p-3 rounded-xl"
+            />
             <label className="relative flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-[#C59B3C]/60 text-[#C59B3C] hover:bg-[#C59B3C]/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
               <ImagePlus size={16} />
               اختر صورة للفئة

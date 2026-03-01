@@ -40,7 +40,7 @@ export default function Dashboard() {
   const [categoryName, setCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
-  const [displayOrder, setDisplayOrder] = useState(1)
+  const [displayOrder, setDisplayOrder] = useState<string>("")
 
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
@@ -148,13 +148,33 @@ export default function Dashboard() {
       imageUrl = data.publicUrl
     }
 
+
+    const orderNumber = displayOrder === "" ? 1 : Number(displayOrder)
+
+        if (orderNumber < 1) {
+          setLoading(false)
+          return alert("الترتيب يجب أن يكون 1 أو أكبر")
+        }
+
+        const { data: duplicate } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("display_order", orderNumber)
+          .single()
+
+        if (duplicate) {
+          setLoading(false)
+          return alert("يوجد فئة أخرى بنفس رقم الترتيب")
+        }
+
+
         await supabase.from("categories").insert([
           {
             name: categoryName,
             slug,
             image: imageUrl,
             is_active: true,
-            display_order: displayOrder
+            display_order: orderNumber
           }
         ])
 
@@ -162,7 +182,7 @@ export default function Dashboard() {
     setCategoryName("")
     setCategoryImage(null)
     setCategoryPreview(null)
-    setDisplayOrder(0)    
+    setDisplayOrder("1")   
 
     fetchCategories()
 
@@ -284,13 +304,25 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-        <input
+         <input
             type="number"
+            min="1"
             value={displayOrder}
-            onChange={(e) => setDisplayOrder(Number(e.target.value))}
+            onChange={(e) => {
+              const val = e.target.value
+
+              if (val === "") {
+                setDisplayOrder("")
+                return
+              }
+
+              if (Number(val) < 1) return
+
+              setDisplayOrder(val)
+            }}
             placeholder="ترتيب العرض (1 يظهر أولاً)"
             className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-        />
+          />
 
         <div className="space-y-3">
 
