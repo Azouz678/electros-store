@@ -41,7 +41,7 @@ export default function ManageCategories() {
     let query = supabase
       .from("categories")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("display_order", { ascending: true })
 
     if (search.trim() !== "") {
       query = query.ilike("name", `%${search}%`)
@@ -179,6 +179,7 @@ export default function ManageCategories() {
 
     setTimeout(() => {
       setEditing(null)
+      setNewOrder("")
       setNewImage(null)
       setPreview(null)
       setUpdateState("idle")

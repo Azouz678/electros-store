@@ -101,7 +101,7 @@ export default function Dashboard() {
     const { data } = await supabase
       .from("categories")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("display_order", { ascending: true })
 
     setCategories(data || [])
   }
@@ -182,7 +182,7 @@ export default function Dashboard() {
     setCategoryName("")
     setCategoryImage(null)
     setCategoryPreview(null)
-    setDisplayOrder("1")   
+    setDisplayOrder("")   
 
     fetchCategories()
 
