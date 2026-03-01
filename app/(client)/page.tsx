@@ -9,10 +9,11 @@ const supabase = createClient(
 )
 
 export default async function Home() {
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("is_active", true)
+ const { data: categories } = await supabase
+  .from("categories")
+  .select("*")
+  .eq("is_active", true)
+  .order("display_order", { ascending: true })
 
   return (
     <>

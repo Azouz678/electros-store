@@ -156,16 +156,20 @@ export default function Dashboard() {
           return alert("الترتيب يجب أن يكون 1 أو أكبر")
         }
 
-        const { data: duplicate } = await supabase
-          .from("categories")
-          .select("id")
-          .eq("display_order", orderNumber)
-          .single()
+            const { data: duplicates, error: dupError } = await supabase
+              .from("categories")
+              .select("id")
+              .eq("display_order", orderNumber)
 
-        if (duplicate) {
-          setLoading(false)
-          return alert("يوجد فئة أخرى بنفس رقم الترتيب")
-        }
+            if (dupError) {
+              setLoading(false)
+              return alert("خطأ في التحقق من الترتيب")
+            }
+
+            if (duplicates && duplicates.length > 0) {
+              setLoading(false)
+              return alert("يوجد فئة أخرى بنفس رقم الترتيب")
+            }
 
 
         await supabase.from("categories").insert([
