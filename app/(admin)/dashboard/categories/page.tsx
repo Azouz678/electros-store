@@ -26,7 +26,7 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
-  const [newOrder, setNewOrder] = useState<number>(0)
+  const [newOrder, setNewOrder] = useState<number>(1)
   const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
