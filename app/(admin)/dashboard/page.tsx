@@ -1,7 +1,8 @@
 "use client"
 
 import { supabase } from "@/lib/supabase"
-import { useRef, useEffect, useState } from "react"
+import {useEffect, useState } from "react"
+import { useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ImagePlus, CheckCircle } from "lucide-react"
 
@@ -289,10 +290,11 @@ export default function Dashboard() {
         setCategoryId("")
         setImageFiles([])
         setProductPreviews([])
+        setPrimaryIndex(null) 
         if (fileInputRef.current) {
              fileInputRef.current.value = ""
           }
-
+     
         showSuccess("تم إضافة المنتج بنجاح ✅")
       }
 
@@ -359,9 +361,7 @@ export default function Dashboard() {
                 </div>
 
                 <input
-                  ref={fileInputRef}
                   type="file"
-                  multiple
                   accept="image/*"
                   className="absolute inset-0 opacity-0 cursor-pointer"
                   onChange={(e) => {
@@ -493,6 +493,7 @@ export default function Dashboard() {
             </div>
 
             <input
+              ref={fileInputRef}
               type="file"
               multiple
               accept="image/*"
