@@ -7,6 +7,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core"
@@ -68,7 +69,7 @@ function SortableItem({
       style={style}
       {...attributes}
       {...listeners}
-      className="cursor-grab active:cursor-grabbing"
+      className="cursor-grab active:cursor-grabbing touch-none"
     >
       {children}
     </div>
@@ -90,11 +91,17 @@ export default function ManageCategories() {
   const [updateState, setUpdateState] = useState<"idle" | "loading" | "success">("idle")
 
 
-    const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 6 }, // يمنع السحب بالغلط
-    })
-  )
+      const sensors = useSensors(
+        useSensor(PointerSensor, {
+          activationConstraint: { distance: 6 },
+        }),
+        useSensor(TouchSensor, {
+          activationConstraint: {
+            delay: 200,     // مهم جداً للموبايل
+            tolerance: 5,
+          },
+        })
+      )
 
   async function handleDragEnd(event: any) {
     const { active, over } = event
