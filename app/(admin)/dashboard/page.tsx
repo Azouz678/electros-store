@@ -149,7 +149,17 @@ export default function Dashboard() {
     }
 
 
-    const orderNumber = displayOrder === "" ? 1 : Number(displayOrder)
+          if (displayOrder.trim() === "") {
+        setLoading(false)
+        return alert("يجب إدخال رقم ترتيب للفئة")
+      }
+
+      const orderNumber = Number(displayOrder)
+
+      if (orderNumber < 1) {
+        setLoading(false)
+        return alert("الترتيب يجب أن يكون 1 أو أكبر")
+      }
 
         if (orderNumber < 1) {
           setLoading(false)
