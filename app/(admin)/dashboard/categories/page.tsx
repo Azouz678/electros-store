@@ -10,6 +10,7 @@ type Category = {
   slug: string
   image: string | null
   is_active: boolean
+  display_order: number
 }
 
 function generateSlug(text: string) {
@@ -25,6 +26,7 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
+  const [newOrder, setNewOrder] = useState<number>(0)
   const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -143,12 +145,13 @@ export default function ManageCategories() {
     }
 
     await supabase
-      .from("categories")
-      .update({
-        name: trimmed,
-        slug,
-        image: imageUrl
-      })
+        .from("categories")
+        .update({
+          name: trimmed,
+          slug,
+          image: imageUrl,
+          display_order: newOrder
+        })
       .eq("id", editing.id)
 
     setUpdateState("success")
@@ -218,11 +221,12 @@ export default function ManageCategories() {
               </button>
 
               <button
-                onClick={() => {
-                  setEditing(cat)
-                  setNewName(cat.name)
-                  setPreview(cat.image)
-                }}
+                  onClick={() => {
+                    setEditing(cat)
+                    setNewName(cat.name)
+                    setPreview(cat.image)
+                    setNewOrder(cat.display_order || 0)
+                  }}
                 className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
               >
                 <Pencil size={16} />
@@ -254,7 +258,13 @@ export default function ManageCategories() {
               onChange={e => setNewName(e.target.value)}
               className="w-full border p-3 rounded-xl"
             />
-
+            <input
+                type="number"
+                value={newOrder}
+                onChange={(e) => setNewOrder(Number(e.target.value))}
+                placeholder="ترتيب العرض (0 يظهر أولاً)"
+                className="w-full border p-3 rounded-xl"
+              />
             <label className="relative flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-[#C59B3C]/60 text-[#C59B3C] hover:bg-[#C59B3C]/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
               <ImagePlus size={16} />
               اختر صورة للفئة

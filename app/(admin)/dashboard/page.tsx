@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [categoryName, setCategoryName] = useState("")
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
+  const [displayOrder, setDisplayOrder] = useState(0)
 
   const [name, setName] = useState("")
   const [price, setPrice] = useState("")
@@ -147,20 +148,21 @@ export default function Dashboard() {
       imageUrl = data.publicUrl
     }
 
-    await supabase.from("categories").insert([
-      {
-        name: categoryName,
-        slug,
-        image: imageUrl,
-        is_active: true
-      }
-    ])
+        await supabase.from("categories").insert([
+          {
+            name: categoryName,
+            slug,
+            image: imageUrl,
+            is_active: true,
+            display_order: displayOrder
+          }
+        ])
 
     setLoading(false)
     setCategoryName("")
     setCategoryImage(null)
     setCategoryPreview(null)
-        
+    setDisplayOrder(0)    
 
     fetchCategories()
 
@@ -280,6 +282,14 @@ export default function Dashboard() {
           placeholder="اسم الفئة"
           onChange={e => setCategoryName(e.target.value)}
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
+        />
+
+        <input
+            type="number"
+            value={displayOrder}
+            onChange={(e) => setDisplayOrder(Number(e.target.value))}
+            placeholder="ترتيب العرض (0 يظهر أولاً)"
+            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
         <div className="space-y-3">
