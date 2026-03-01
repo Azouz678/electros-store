@@ -42,7 +42,6 @@ export default function Dashboard() {
   const [categoryImage, setCategoryImage] = useState<File | null>(null)
   const [categoryPreview, setCategoryPreview] = useState<string | null>(null)
   
-  const [displayOrder, setDisplayOrder] = useState<string>("")
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const [name, setName] = useState("")
@@ -116,7 +115,10 @@ export default function Dashboard() {
   async function addCategory() {
     setLoading(true)
     
-    if (!categoryName) return alert("اكتب اسم الفئة")
+    if (!categoryName) {
+          setLoading(false)
+          return alert("اكتب اسم الفئة")
+    }
 
     const slug = generateSlug(categoryName)
 
@@ -152,54 +154,41 @@ export default function Dashboard() {
     }
 
 
-          if (displayOrder.trim() === "") {
-        setLoading(false)
-        return alert("يجب إدخال رقم ترتيب للفئة")
-      }
+        // هات أكبر display_order موجود
+          const { data: lastRow, error: lastErr } = await supabase
+            .from("categories")
+            .select("display_order")
+            .order("display_order", { ascending: false })
+            .limit(1)
+            .maybeSingle()
 
-      const orderNumber = Number(displayOrder)
-
-      if (orderNumber < 1) {
-        setLoading(false)
-        return alert("الترتيب يجب أن يكون 1 أو أكبر")
-      }
-
-        if (orderNumber < 1) {
-          setLoading(false)
-          return alert("الترتيب يجب أن يكون 1 أو أكبر")
-        }
-
-            const { data: duplicates, error: dupError } = await supabase
-              .from("categories")
-              .select("id")
-              .eq("display_order", orderNumber)
-
-            if (dupError) {
-              setLoading(false)
-              return alert("خطأ في التحقق من الترتيب")
-            }
-
-            if (duplicates && duplicates.length > 0) {
-              setLoading(false)
-              return alert("يوجد فئة أخرى بنفس رقم الترتيب")
-            }
-
-
-        await supabase.from("categories").insert([
-          {
-            name: categoryName,
-            slug,
-            image: imageUrl,
-            is_active: true,
-            display_order: orderNumber
+          if (lastErr) {
+            setLoading(false)
+            return alert("خطأ في قراءة ترتيب الفئات: " + lastErr.message)
           }
-        ])
+          const nextOrder = (lastRow?.display_order ?? 0) + 1
+
+
+          const { error: insertErr } = await supabase.from("categories").insert([
+            {
+              name: categoryName,
+              slug,
+              image: imageUrl,
+              is_active: true,
+              display_order: nextOrder,
+            },
+          ])
+
+          if (insertErr) {
+            setLoading(false)
+            return alert("فشل إضافة الفئة: " + insertErr.message)
+          }
+
 
     setLoading(false)
     setCategoryName("")
     setCategoryImage(null)
     setCategoryPreview(null)
-    setDisplayOrder("")   
 
     fetchCategories()
 
@@ -325,25 +314,6 @@ export default function Dashboard() {
           className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
         />
 
-         <input
-            type="number"
-            min="1"
-            value={displayOrder}
-            onChange={(e) => {
-              const val = e.target.value
-
-              if (val === "") {
-                setDisplayOrder("")
-                return
-              }
-
-              if (Number(val) < 1) return
-
-              setDisplayOrder(val)
-            }}
-            placeholder="ترتيب العرض (1 يظهر أولاً)"
-            className="w-full border p-3 rounded-xl bg-gray-50 dark:bg-slate-700"
-          />
 
         <div className="space-y-3">
 

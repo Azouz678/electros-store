@@ -3,6 +3,24 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Pencil, Trash2, ImagePlus, Power, CheckCircle } from "lucide-react"
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable"
+
+import { CSS } from "@dnd-kit/utilities"
+
+
 
 type Category = {
   id: string
@@ -13,6 +31,8 @@ type Category = {
   display_order: number
 }
 
+
+
 function generateSlug(text: string) {
   return text
     .toLowerCase()
@@ -21,17 +41,94 @@ function generateSlug(text: string) {
     .replace(/\s+/g, "-")
 }
 
+// مكوّن العنصر القابل للسحب
+function SortableItem({
+  id,
+  children,
+}: {
+  id: string
+  children: React.ReactNode
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-grab active:cursor-grabbing"
+    >
+      {children}
+    </div>
+  )
+}
+
+
+
+
 export default function ManageCategories() {
 
   const [categories, setCategories] = useState<Category[]>([])
   const [editing, setEditing] = useState<Category | null>(null)
   const [newName, setNewName] = useState("")
-  const [newOrder, setNewOrder] = useState<string>("")
   const [search, setSearch] = useState("")
   const [newImage, setNewImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [updateState, setUpdateState] = useState<"idle" | "loading" | "success">("idle")
+
+
+    const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 }, // يمنع السحب بالغلط
+    })
+  )
+
+  async function handleDragEnd(event: any) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = categories.findIndex((c) => c.id === active.id)
+    const newIndex = categories.findIndex((c) => c.id === over.id)
+
+    const newArray = arrayMove(categories, oldIndex, newIndex)
+    setCategories(newArray)
+
+    // ✅ تحديث قاعدة البيانات: 1..N
+    const updates = newArray.map((cat, idx) => ({
+      id: cat.id,
+      display_order: idx + 1,
+    }))
+
+    // تحديثات متتالية (آمنة وبسيطة)
+    for (const row of updates) {
+      const { error } = await supabase
+        .from("categories")
+        .update({ display_order: row.display_order })
+        .eq("id", row.id)
+
+      if (error) {
+        alert("حصل خطأ أثناء حفظ ترتيب الفئات: " + error.message)
+        return
+      }
+    }
+
+    showSuccess("تم حفظ ترتيب الفئات ✅")
+  }
+
+
 
   useEffect(() => {
     fetchCategories()
@@ -90,106 +187,81 @@ export default function ManageCategories() {
     fetchCategories()
   }
 
-  async function updateCategory() {
+ async function updateCategory() {
+  if (!editing) return
 
-    if (!editing) return
+  setUpdateState("loading")
 
-    setUpdateState("loading")
-
-    const trimmed = newName.trim()
-    if (!trimmed) {
-      setUpdateState("idle")
-      return alert("اسم الفئة مطلوب")
-    }
-
-    const slug = generateSlug(trimmed)
-
-    const { data: existing } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("slug", slug)
-      .neq("id", editing.id)
-
-    if (existing && existing.length > 0) {
-      setUpdateState("idle")
-      return alert("فئة بنفس الاسم موجودة")
-    }
-
-    let imageUrl = editing.image
-
-    if (newImage) {
-
-      if (editing.image) {
-        const oldFile = editing.image.split("/").pop()
-        if (oldFile) {
-          await supabase.storage.from("categories").remove([oldFile])
-        }
-      }
-
-      const fileName = `cat-${Date.now()}-${newImage.name}`
-
-      const { error } = await supabase.storage
-        .from("categories")
-        .upload(fileName, newImage)
-
-      if (error) {
-        setUpdateState("idle")
-        return alert("فشل رفع الصورة")
-      }
-
-      const { data } = supabase.storage
-        .from("categories")
-        .getPublicUrl(fileName)
-
-      imageUrl = data.publicUrl
-    }
-
-
-    const orderNumber = newOrder === "" ? 1 : Number(newOrder)
-
-        if (orderNumber < 1) {
-          setUpdateState("idle")
-          return alert("الترتيب يجب أن يكون 1 أو أكبر")
-        }
-
-          const { data: duplicates, error: dupError } = await supabase
-            .from("categories")
-            .select("id")
-            .eq("display_order", orderNumber)
-            .neq("id", editing.id)
-
-          if (dupError) {
-            setUpdateState("idle")
-            return alert("خطأ في التحقق من الترتيب")
-          }
-
-          if (duplicates && duplicates.length > 0) {
-            setUpdateState("idle")
-            return alert("يوجد فئة أخرى بنفس رقم الترتيب")
-          }
-
-    await supabase
-        .from("categories")
-        .update({
-          name: trimmed,
-          slug,
-          image: imageUrl,
-          display_order: orderNumber
-        })
-      .eq("id", editing.id)
-
-    setUpdateState("success")
-    showSuccess("تم تحديث الفئة بنجاح ✅")
-
-    setTimeout(() => {
-      setEditing(null)
-      setNewOrder("")
-      setNewImage(null)
-      setPreview(null)
-      setUpdateState("idle")
-      fetchCategories()
-    }, 1200)
+  const trimmed = newName.trim()
+  if (!trimmed) {
+    setUpdateState("idle")
+    return alert("اسم الفئة مطلوب")
   }
+
+  const slug = generateSlug(trimmed)
+
+  const { data: existing } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", slug)
+    .neq("id", editing.id)
+
+  if (existing && existing.length > 0) {
+    setUpdateState("idle")
+    return alert("فئة بنفس الاسم موجودة")
+  }
+
+  let imageUrl = editing.image
+
+  if (newImage) {
+    if (editing.image) {
+      const oldFile = editing.image.split("/").pop()
+      if (oldFile) await supabase.storage.from("categories").remove([oldFile])
+    }
+
+    const fileName = `cat-${Date.now()}-${newImage.name}`
+
+    const { error } = await supabase.storage
+      .from("categories")
+      .upload(fileName, newImage)
+
+    if (error) {
+      setUpdateState("idle")
+      return alert("فشل رفع الصورة")
+    }
+
+    const { data } = supabase.storage
+      .from("categories")
+      .getPublicUrl(fileName)
+
+    imageUrl = data.publicUrl
+  }
+
+  const { error: updateError } = await supabase
+    .from("categories")
+    .update({
+      name: trimmed,
+      slug,
+      image: imageUrl,
+    })
+    .eq("id", editing.id)
+
+  if (updateError) {
+    setUpdateState("idle")
+    return alert(updateError.message)
+  }
+
+  setUpdateState("success")
+  showSuccess("تم تحديث الفئة بنجاح ✅")
+
+  setTimeout(() => {
+    setEditing(null)
+    setNewImage(null)
+    setPreview(null)
+    setUpdateState("idle")
+    fetchCategories()
+  }, 1200)
+}
 
   return (
     <div className="space-y-6">
@@ -211,65 +283,83 @@ export default function ManageCategories() {
         className="w-full p-3 rounded-xl bg-white dark:bg-[#1E293B] border focus:ring-2 focus:ring-[#C59B3C] outline-none transition"
       />
 
-      <div className="space-y-4">
-
+  <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+    <SortableContext
+          items={categories.map(c => c.id)}
+          strategy={verticalListSortingStrategy}
+        >
+    <div className="space-y-4">
         {categories.map(cat => (
-          <div
-            key={cat.id}
-            className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-md flex justify-between items-center transition hover:shadow-xl hover:scale-[1.01]"
-          >
+          <SortableItem key={cat.id} id={cat.id}>
+            <div
+              className="
+                bg-white dark:bg-slate-800
+                p-4
+                rounded-2xl
+                shadow-md
+                flex justify-between items-center
+                transition
+                hover:shadow-xl
+                hover:scale-[1.01]
+              "
+            >
+              <div className="flex items-center gap-4">
 
-            <div className="flex items-center gap-4">
+                {cat.image && (
+                  <img
+                    src={cat.image}
+                    className="w-16 h-16 object-cover rounded-xl"
+                  />
+                )}
 
-              {cat.image && (
-                <img
-                  src={cat.image}
-                  className="w-16 h-16 object-cover rounded-xl"
-                />
-              )}
+                <div>
+                  <p className="font-semibold text-lg">{cat.name}</p>
+                  <p className={`text-xs ${cat.is_active ? "text-green-600" : "text-red-500"}`}>
+                    {cat.is_active ? "مفعلة" : "موقوفة"}
+                  </p>
+                </div>
 
-              <div>
-                <p className="font-semibold text-lg">{cat.name}</p>
-                <p className={`text-xs ${cat.is_active ? "text-green-600" : "text-red-500"}`}>
-                  {cat.is_active ? "مفعلة" : "موقوفة"}
-                </p>
               </div>
-            </div>
 
-            <div className="flex gap-2">
+              <div className="flex gap-2">
 
-              <button
-                onClick={() => toggleActive(cat)}
-                className="bg-yellow-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
-              >
-                <Power size={16} />
-              </button>
+                <button
+                  onClick={() => toggleActive(cat)}
+                  className="bg-yellow-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
+                >
+                  <Power size={16} />
+                </button>
 
-              <button
+                <button
                   onClick={() => {
                     setEditing(cat)
                     setNewName(cat.name)
                     setPreview(cat.image)
-                    setNewOrder(String(cat.display_order ?? 1))
                   }}
-                className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
-              >
-                <Pencil size={16} />
-              </button>
+                  className="bg-blue-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
+                >
+                  <Pencil size={16} />
+                </button>
 
-              <button
-                onClick={() => deleteCategory(cat)}
-                className="bg-red-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
-              >
-                <Trash2 size={16} />
-              </button>
+                <button
+                  onClick={() => deleteCategory(cat)}
+                  className="bg-red-500 text-white px-3 py-2 rounded-xl hover:scale-105 transition"
+                >
+                  <Trash2 size={16} />
+                </button>
+
+              </div>
 
             </div>
-
-          </div>
+          </SortableItem>
         ))}
-
-      </div>
+        </div>
+      </SortableContext>
+    </DndContext>
 
       {editing && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -284,24 +374,6 @@ export default function ManageCategories() {
               className="w-full border p-3 rounded-xl"
             />
 
-            <input
-              type="number"
-              min="1"
-              value={newOrder}
-              onChange={(e) => {
-                const val = e.target.value
-
-                if (val === "") {
-                  setNewOrder("")
-                  return
-                }
-
-                if (Number(val) < 1) return
-
-                setNewOrder(val)
-              }}
-              className="w-full border p-3 rounded-xl"
-            />
             <label className="relative flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-[#C59B3C]/60 text-[#C59B3C] hover:bg-[#C59B3C]/10 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
               <ImagePlus size={16} />
               اختر صورة للفئة
@@ -364,5 +436,6 @@ export default function ManageCategories() {
       )}
 
     </div>
+    
   )
 }
