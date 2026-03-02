@@ -541,5 +541,6 @@ export default function Dashboard() {
       </div>
       <InstallButton />    
     </div>
+    
   )
 }
