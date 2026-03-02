@@ -10,7 +10,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#6d28d9" />
+        <meta name="theme-color" content="#1e293b" />
       <body className="min-h-screen">
         {children}
       </body>
