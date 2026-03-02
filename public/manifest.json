@@ -1,14 +1,14 @@
 {
   "name": "إلكترو البيت الحديث",
-  "short_name": "إلكترو",
+  "short_name": "إلكترو البيت الحديث",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6d28d9",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     },
     {
