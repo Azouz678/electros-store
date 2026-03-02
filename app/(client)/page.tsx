@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 import Link from "next/link"
+import InstallButton from "@/components/InstallButton"
 
 export const revalidate = 0
 
@@ -16,6 +17,7 @@ export default async function Home() {
   .order("display_order", { ascending: true })
 
   return (
+    
     <>
       {/* HERO */}
 
@@ -174,6 +176,7 @@ export default async function Home() {
   ))}
 </div>
       </section>
+      <InstallButton />
     </>
   )
 }

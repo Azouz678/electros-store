@@ -9,6 +9,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#6d28d9" />
       <body className="min-h-screen">
         {children}
       </body>
@@ -19,51 +21,3 @@ export default function RootLayout({
 
 
 
-// import type { Metadata } from "next";
-// import { ThemeProvider } from "@/components/theme-provider";
-// import "./globals.css";
-
-// export const metadata: Metadata = {
-//   title: "Electros Store",
-//   description: "Electronics showroom",
-// };
-
-// export default function RootLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return (
-//     <html
-//       lang="ar"
-//       dir="rtl"
-//       suppressHydrationWarning
-//     >
-//       <body className="min-h-screen">
-//         <ThemeProvider
-//           attribute="class"
-//           defaultTheme="light"
-//           enableSystem={false}
-//         >
-//           {children}
-//         </ThemeProvider>
-//       </body>
-//     </html>
-//   );
-// }
-
-// export default function RootLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return (
-//     <html lang="ar" dir="rtl" suppressHydrationWarning>
-//       <body>
-//         {/* <ThemeProvider> */}
-//           {children}
-//         {/* </ThemeProvider> */}
-//       </body>
-//     </html>
-//   );
-// }

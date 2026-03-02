@@ -5,7 +5,7 @@ import {useEffect, useState } from "react"
 import { useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ImagePlus, CheckCircle } from "lucide-react"
-
+import InstallButton from "@/components/InstallButton"
 type Category = {
   id: string
   name: string
@@ -539,7 +539,7 @@ export default function Dashboard() {
         </button>
 
       </div>
-
+      <InstallButton />    
     </div>
   )
 }
