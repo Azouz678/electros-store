@@ -1,7 +1,7 @@
 {
   "name": "لوحة تحكم علي عزيز",
   "short_name": "علي نبيل عزيز",
-  "start_url": "/admin/dashboard",
+  "start_url": "/admin/dashboard/home",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
